@@ -1,0 +1,115 @@
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+#    Author: Lucas Huber, Copyright: CoĐoo Project
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+
+from openerp import models, fields, api
+from openerp.exceptions import except_orm
+from datetime import datetime, timedelta
+import exchange_model
+
+#    List/Model of Loans and Loans Type
+
+
+class ExchangeLoanContractsTypes(models.Model):
+    # Loans in form of System loans not private (p2p) ones
+    # Process TBD
+    _name = 'exchange.loan.contract.type'
+    _description = 'Exchange Loans Types'
+    _order = 'name'
+
+    name = fields.Char('Type Name', size=64, translate=True, required=True)
+    desc = fields.Text('Description', translate=True,)
+    contract = fields.Text('Contract Text', translate=True,)
+
+    loan_contract_ids = fields.One2many(
+        'exchange.loan.contract', 'loan_type_id',
+        'Related Loan Contracts')
+    loan_max_amount = fields.Float('Maximal amount of Loan')
+    loan_revolving = fields.Boolean(
+        'Is a revolving Loan type',
+         help='A revolving does renew after each month')
+    loan_grant_type_id = fields.One2many(
+        'exchange.transaction.type', 'loan_contract_type_ids',
+        'Loan transaction types')
+#    loan_repayment_type_id = fields.Many2one(
+#        'exchange.transaction.type',
+#        'Loan repayment transaction type')
+#    loan_interest_type_id = fields.Many2one(
+#        'exchange.transaction.type',
+#        'Loan interest transaction type')
+#    loan_expiration_fee_type_id = fields.Many2one(
+#        'exchange.transaction.type',
+#        'Loan expiration fee transaction type')
+    loan_monthly_interest = fields.Float('Loan monthly interest (%)')
+    loan_grant_fee_value = fields.Float('Loan grant fee value')
+    loan_expiration_fee_value = fields.Float('Loan expiration fee value')
+    loan_repayment_days = fields.Integer('Loan repayment days')
+
+
+
+class ExchangeLoanContracts(models.Model):
+    # Loans in form of System loans not private (p2p) ones
+    # Process TBD
+    _name = 'exchange.loan.contract'
+    _description = 'Exchange Loans'
+    _order = 'name,transaction_id'
+
+    name = fields.Char('Loan Name', size=64, required=True)
+    desc = fields.Text('Description')
+    transaction_id = fields.One2many(
+        'exchange.transaction', 'loan_contract_id',
+        'Loan transactions',
+         help='All transactions related to the loan')
+    total_amount = fields.Float('Total amount of Loan')
+    loan_type_id = fields.Many2one(
+        'exchange.loan.contract.type',
+        'Loan type',
+         help='Related Loan type for this loan')
+    loan_repayment_transaction_id = fields.Many2one(
+        'exchange.transaction',
+        'Loan repayment transaction')
+    loan_interest_transaction_id = fields.Many2one(
+        'exchange.transaction',
+        'Loan interest transaction')
+    loan_grant_fee_value = fields.Float('Loan grant fee value')
+    loan_grant_fee_type = fields.Char('Loan grant fee type')
+    loan_grant_fee_type_id = fields.Integer('Loan grant type id')
+    loan_monthly_interest = fields.Float('Loan monthly interest (%)')
+    loan_expiration_fee_value = fields.Float('Loan expiration fee value')
+    loan_expiration_fee_type = fields.Char('Loan expiration fee type')
+    loan_expiration_fee_type_id = fields.Integer('Loan expiration fee type id')
+    loan_expiration_daily_interest = fields.Float('Loan expiration daily interest')
+    loan_exp_daily_interest_type_id = fields.Integer('Loan expiration daily interest type id')
+    loan_repayment_days = fields.Integer('Loan repayment days')
+    state = fields.Selection(
+            [
+                ('draft', 'Draft'),
+                ('active', 'Active'),
+                ('delayed', 'Delayed'),
+                ('done', 'Closed'),
+                ('donedelayed', 'Closed delayed'),
+                ('default', 'Defaulted'),
+                ('cancel', 'Cancelled'),
+            ], 'Status', readonly=False, required=True, track_visibility='onchange')
+
+
+
+
+
+

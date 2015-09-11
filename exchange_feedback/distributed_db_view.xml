@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- KOINA Extra Config Parameters -->
+
+        <record id="view_exchange_configuration_setting" model="ir.ui.view">
+            <field name="name">exchange.configuration.koina</field>
+            <field name="model">exchange.config.settings</field>
+            <field name="inherit_id" ref="base_exchange.view_exchange_configuration"/>
+            <field name="arch" type="xml">
+                <form position="inside">
+                    <separator string="Exchange KOINA Parameters"/>
+                    <p>
+                    Parameters applied to Default Currency (DC)
+                    </p>
+                    <group name="private_grp">
+                        <label for="id" string="More"/>
+                        <div name="public_user">
+                            <div>
+                                <field name="par1_res" class="oe_inline"/> % |
+                                  <label for="par1_res"/><br> </br>
+                                <field name="par_PUL_to_credit_ratio" class="oe_inline"/> % |
+                                  <label for="par_PUL_to_credit_ratio"/><br> </br>
+                            </div>
+                        </div>
+                    </group>
+                     <group name="business_grp">
+                        <label for="id" string="Fees/Credit Conditions"/>
+                        <div name="public_user">
+                            <div>
+                                <field name="par_credit_discount" class="oe_inline"/> % |
+                                  <label for="par_credit_discount"/><br> </br>
+                                <field name="par_credit_fee" class="oe_inline"/> % |
+                                  <label for="par_credit_fee"/><br> </br>
+                            </div>
+                        </div>
+                    </group>
+                     <group name="KIX_grp">
+                        <label for="id" string="KIX Settings"/>
+                        <div name="public_user">
+                            <div>
+                                <field name="par_KIX_chng_delayed_credit" class="oe_inline"/> % |
+                                  <label for="par_KIX_chng_delayed_credit"/><br> </br>
+                                <field name="par_KIX_chng_default_credit" class="oe_inline"/> % |
+                                  <label for="par_KIX_chng_default_credit"/><br> </br>
+                                <field name="par2_res" class="oe_inline"/> % |
+                                  <label for="par2_res"/><br> </br>
+                            </div>
+                        </div>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <!-- Change in Config of Accounts -->
+
+        <record id="view_exchange_config_currency_inherited" model="ir.ui.view">
+            <field name="name">exchange.config.accounts.tree.extension</field>
+            <field name="model">exchange.config.accounts</field>
+            <field name="inherit_id" ref="exchange.view_exchange_config_currency_tree"/>
+            <field name="arch" type="xml">
+                <tree string="Currencies">
+                    <field name="account_name"/>
+                    <field name="external_currency"/>
+                </tree>
+            </field>
+        </record>
+
+       <!-- Form View -->
+
+        <record id="view_exchange_config_currency_inherited" model="ir.ui.view">
+            <field name="name">exchange.config.accounts.extension</field>
+            <field name="model">exchange.config.accounts</field>
+            <field name="inherit_id" ref="exchange.view_exchange_config_currency_form"/>
+            <field name="arch" type="xml">
+                <form string="Currency">
+                    <field name="account_name" class="oe_inline"/>
+                    <label for="account_name"/>
+                </form>
+            </field>
+        </record>
+
+       <!--
+        <record id="view_exchange_config_currency_inherited" model="ir.ui.view">
+            <field name="name">exchange.config.accounts.extension</field>
+            <field name="model">exchange.config.accounts</field>
+            <field name="inherit_id" ref="exchange.view_exchange_config_currency_form"/>
+            <field name="arch" type="xml">
+                <form string="Currency">
+                    <field name="currency_id"/>
+                    <field name="limit_negative"/>
+                    <field name="limit_negative_value" attrs="{'invisible': [('limit_negative','=',False)]}"/>
+                    <field name="limit_positive"/>
+                    <field name="limit_positive_value" attrs="{'invisible': [('limit_positive','=',False)]}"/>
+                    <field name="partner_availability_account_id"/>
+                    <field name="partner_reserved_account_id"/>
+                    <field name="partner_expense_account_id"/>
+                    <field name="partner_income_account_id"/>
+                    <field name="external_currency"/>
+                </form>
+            </field>
+        </record>
+        -->
+    </data>
+</openerp>
