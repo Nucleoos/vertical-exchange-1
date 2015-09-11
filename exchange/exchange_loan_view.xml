@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Transactions view tree -->
+        <record id="view_transactions_tree" model="ir.ui.view">
+            <field name="name">exchange.transaction.tree</field>
+            <field name="model">exchange.transaction</field>
+            <field name="arch" type="xml">
+                <tree string="Transactions all">
+                    <field name="create_date"/>
+                    <field name="account_from_id"/>
+                    <field name="account_to_id"/>
+                    <field name="tr_number"/>
+                </tree>
+            </field>
+        </record>
+
+      <!-- Transactions view form -->
+        <record id="view_transactions_form" model="ir.ui.view">
+            <field name="name">exchange.transaction.form</field>
+            <field name="model">exchange.transaction</field>
+            <field name="arch" type="xml">
+                <form string="Transactions all">
+                    <group col="4">
+                        <field name="type_id"/>
+                        <field name="tr_number" class="oe_highlight" />
+                        <field name="is_fee"/>
+                        <field name="is_loan"/>
+                        <field name="state"/>
+                        <field name="transaction_date"/>
+                        <field name="emission_date"/>
+                        <field name="loan_contract_id"/>
+                        <field name="fee_ids"/>
+                    </group>
+                    <group name="from_grp">
+                        <label for="id" string="Transaction from"/>
+                        <group col="4">
+                        <field name="sender_id"/>
+                        <field name="account_from_id"/>
+                        <field name="amount_from"/>
+                        <field name="exchange_rate_from"/>
+                        </group>
+                    </group>
+
+                    <group name="to_grp">
+                        <label for="id" string="Transaction to"/>
+                        <group col="4">
+                        <field name="receiver_id"/>
+                        <field name="account_to_id"/>
+                        <field name="amount_to"/>
+                        <field name="exchange_rate_to"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+        <!-- Menu Items -->
+        <record id="act_exchange_transaction_all" model="ir.actions.act_window">
+            <field name="name">Transactions All </field>
+            <field name="res_model">exchange.transaction</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        <!--     <field name="search_view_id" ref="view_exchange_transaction_search"/>
+       --> </record>
+        <!-- Association Menu Item -->
+        <menuitem action="act_exchange_transaction_all" id="menu_act_transaction_accounts_asoc_all" parent="base_exchange.menu_association_exchange" sequence="2"/>
+        <!-- Settings Menu Item -->
+        <menuitem action="act_exchange_transaction_all" id="menu_act_transaction_accounts_all" parent="base_exchange.menu_configuration_exchange" sequence="2"/>
+
+        <record id="act_exchange_transaction_my" model="ir.actions.act_window">
+            <field name="name">My Transactions</field>
+            <field name="res_model">exchange.transaction</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('sender_id','!=',uid)]</field>
+        <!--  <field name="domain">['|',('sender_id.user_ids','in',uid),('receiver_id.user_ids','in',uid)]</field> -->
+            <field name="context">{}</field>
+     <!--        <field name="search_view_id" ref="view_exchange_transaction_search"/>
+     -->   </record>
+        <!-- Association Menu Item -->
+        <menuitem action="act_exchange_transaction_my" id="menu_act_transaction_accounts_my" parent="membership.menu_membership" sequence="18"/>
+
+       <!--  Transactions type view form -->
+        <record id="view_transaction_type_form" model="ir.ui.view">
+            <field name="name">exchange.transaction.type.form</field>
+            <field name="model">exchange.transaction.type</field>
+            <field name="arch" type="xml">
+                <form string="Transactions Type all">
+                    <group col="4">
+                        <field name="name" class="oe_highlight" modifiers="{'required': true}"/>
+                        <field name="allowed_self_payment" modifiers="{}"/>
+                        <field name="is_fee" modifiers="{}"/>
+                        <field name="from_account_type_id" modifiers="{'required': true}"/>
+                        <field name="to_account_type_id" modifiers="{'required': true}"/>
+                        <field name="max_amount_per_day" modifiers="{}"/>
+                        <field name="priority" modifiers="{}"/>
+                        <field name="hidden" modifiers="{}"/>
+                        <field name="allowed_payment" modifiers="{}"/>
+                        <field name="feetype_ids" modifiers="{}"/>
+                        <field name="conciliable" modifiers="{}"/>
+                        <newline/><newline/><newline/>
+                        <field name="is_loan" modifiers="{}"/>
+                        <field name="loan_contract_ids" modifiers="{}"/>
+                        <newline/>
+                    </group>
+                    <group name="text_grp">
+                        <label for="id" string="Messages"/>
+                        <group col="4">
+                    <!-- TBD   <label for="desc"/> -->
+                        <field name="desc" modifiers="{}"/>
+                    <!--    <label for="confirmation_message"/> -->
+                        <field name="confirmation_message" modifiers="{}"/>
+                        </group>
+                    </group>
+                    <group name="feedback_grp">
+                        <label for="id" string="Feedback on transaction"/>
+                        <group col="4">
+                            <field name="requires_feedback" modifiers="{}"/>
+                            <field name="default_feedback_level" modifiers="{}"/>
+                            <field name="feedback_enabled_since" modifiers="{}"/>
+                            <field name="feedback_expiration_time_number" modifiers="{}"/> days
+                            <field name="feedback_reply_expiration_time_number" modifiers="{}"/> days
+                            <field name="feedback_account_id" modifiers="{}"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+    </data>
+</openerp>
