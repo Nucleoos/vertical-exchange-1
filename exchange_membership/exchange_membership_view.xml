@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Adding state buttons to Partner -->
+        <record id="exchange_partner_membership_users_view" model="ir.ui.view">
+            <field name="name">partner.form.membership.users</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="/form/*" position="before">
+                    <header>
+                        <button name="do_membership_block" type="object" states="open" string="Block"/>
+                        <button name="do_membership_deblock" type="object" states="blocked" class="oe_highlight" string="Deblock"/>
+                        <button name="do_membership_close" confirm="Are you sure? You can't reopen it" type="object" states="open" string="Close"/>
+                        <field name="state" widget="statusbar" statusbar_visible="application,open,blocked,closed"/>
+                    </header>
+                </xpath>
+                <!-- Adding new wallet page to Partner -->
+                <page string="Internal Notes" position="after">
+                    <page string="Wallet" >
+                        <group col="4">
+                            <field name="see_balance" invisible="0"/>
+                            <field name="create_date" readonly="1"/>
+                        </group>
+                        <group name="acc_grp">
+                        <label for="exchange_account_ids"/>
+                        </group>
+                        <field name="exchange_account_ids" attrs="{'invisible': [('see_balance','!=', True)]}">
+                            <tree string="Accounts">
+                                <field name="template_id" class="oe_inline"/>
+                                <field name="name" style="bold"/>
+                                <field name="currency_base"/>
+                                <field name="limit_negative" invisible="1"/>
+                                <field name="limit_negative_value" attrs="{'invisible': [('limit_negative','=',False)]}"/>
+                                <field name="limit_positive" invisible="1"/>
+                                <field name="limit_positive_value" attrs="{'invisible': [('limit_positive','=',False)]}"/>
+                            </tree>
+                        </field>
+                   <!--      <field name="wallet_currency_ids" groups="exchange.group_exchange_moderator"/> -->
+                    </page>
+                </page>
+            </field>
+        </record>
+    </data>
+</openerp>
