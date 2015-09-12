@@ -91,67 +91,81 @@ class ExchangeTransactions(models.Model):
     @api.multi
     def change_state(self, new_state, *args):
 #       Called by workflow, launch needed action depending of the next state
-#       for transaction in self.browse(cr, uid, ids):
+#       for transaction in self.browse(ids):
 #          fields = {'state': new_state}
 #            if new_state == 'done':
-#               self.prepare_move(cr, uid, [transaction.id], 'confirm')
+#               self.prepare_move([transaction.id], 'do_payment')
 #            if new_state == 'cancel':
 #              self.refund(
-#                   cr, uid, [transaction.id],
-#                   ['reservation', 'invoice', 'payment', 'confirm']
+#                   [transaction.id],
+#                   ['reservation', 'invoice', 'payment', 'do_payment']
 #              )
-#          self.write(cr, uid, [transaction.id], fields)
+#          self.write([transaction.id], fields)
         return True
 
-    @api.multi
-    def confirm(self, cr, uid, ids, *args):
+    @api.one
+    def do_payment(self):
         # Workflow action which confirm the transaction and make the payment
         # for currency managed inside Odoo, it goes to confirm or paid state
         # whether there is or not an external currency
-        self.test_access_role(cr, uid, ids, 'is_sender', *args)
 
-        self.write(cr, uid, ids, {'already_published': True})
-        for transaction in self.browse(cr, uid, ids):
-            self.prepare_move(cr, uid, [transaction.id], 'reservation')
-            self.prepare_move(cr, uid, [transaction.id], 'payment')
-            skip_confirm = self.get_skip_confirm(cr, uid, transaction)
-            if not skip_confirm:
-                workflow.trg_validate(
-                    uid, 'exchange.transaction', transaction.id,
-                    'transaction_draft_confirm', cr
-                )
-            else:
-                workflow.trg_validate(
-                    uid, 'exchange.transaction', transaction.id,
-                    'transaction_draft_done', cr
-                )
+        # Check is there is an external currency, to determine whether
+        # we should go to confirmed or paid state    #
+    #        if  ext_from = 1
+    #           skip_do_payment = self.get_skip_confirm(transaction)
+    #       if not skip_do_payment:
+    #            workflow.trg_validate(
+    #                'exchange.transaction', transaction.id,
+    #                'transaction_draft_confirm'
+    #            )
+    #        else:
+    #            workflow.trg_validate(
+    #                'exchange.transaction', transaction.id,
+    #                'transaction_draft_done'
+    #            )
         return True
 
-    @api.multi
-    def test_access_role(self, cr, uid, ids, role_to_test, *args):
-        # Raise an exception if we try to make
-        #  an action denied for the current user
-        res = self._get_user_role(cr, uid, ids, {}, {})
-        for transaction in self.browse(cr, uid, ids):
-            role = res[transaction.id]
-            if not role[role_to_test]:
-                raise Exception(
-                    ('Access error!'),
-                    (
-                        "You need to have the role " + role_to_test +
-                        " to perform this action!"
-                    ))
+    @api.one
+    def do_invoice(self):
+        # Workflow action which sends a invoice to Receiver
+        self.state = 'invoiced'
+
         return True
 
+
+
+    @api.one
+    def do_content(self):
+        # non Workflow action which sends a message to Receiver
+
+        return True
+
+
+ #   @api.multi
+ #   def test_access_role(self):
+ #       # Raise an exception if we try to make
+ #       #  an action denied for the current user
+ #       res = self._get_user_role( {}, {})
+ #       for transaction in self.browse(ids):
+ #           role = res[transaction.id]
+ #           if not role[role_to_test]:
+ #               raise Exception(
+ #                   ('Access error!'),
+ #                   (
+ #                       "You need to have the role " + role_to_test +
+ #                       " to perform this action!"
+ #                   ))
+ #       return True
+
     @api.multi
-    def _get_user_role(self, cr, uid, ids, prop, unknow_none, context=None):
+    def _get_user_role(self, cr, uid, context=None):
         # Control the access rights of the current user
         user_obj = self.pool.get('res.users')
         res = {}
         partner_id = self.pool.get('res.users').browse(
             cr, uid, uid, context=context
         ).partner_id.id
-        for transaction in self.browse(cr, uid, ids, context=context):
+        for transaction in self.browse(context=context):
             res[transaction.id] = {}
             res[transaction.id]['is_sender'] = False
             res[transaction.id]['is_receiver'] = False
@@ -161,7 +175,7 @@ class ExchangeTransactions(models.Model):
             if transaction.receiver_id.id == partner_id:
                 res[transaction.id]['is_receiver'] = True
             if user_obj.has_group(
-                    cr, uid, 'exchange.group_exchange_moderator'
+                    'exchange.group_exchange_moderator'
             ):
                 res[transaction.id]['is_sender'] = True
                 res[transaction.id]['is_receiver'] = True
@@ -169,17 +183,17 @@ class ExchangeTransactions(models.Model):
         return res
 
     @api.multi
-    def prepare_move(self, cr, uid, ids, action, context=None):
+    def prepare_move(self,  action, context=None):
         # Generate the specified transfer
         partner_obj = self.pool.get('res.partner')
         move_obj = self.pool.get('account.move')
         company_obj = self.pool.get('res.company')
         config = self.pool.get('ir.model.data').get_object(
-            cr, uid, 'base_community', 'community_settings'
+            'base_exchange', 'exchange_settings'
         )
 
     @api.multi
-    def get_skip_confirm(self, cr, uid, transaction, context=None):
+    def get_skip_confirm(self, transaction, context=None):
         # Check is there is an external currency, to determine whether
         # we should go to confirm or paid state
         config_currency_obj = self.pool.get('exchange.config.accounts')
@@ -188,42 +202,42 @@ class ExchangeTransactions(models.Model):
         for currency in transaction.currency_ids:
             currency_ids.append(currency.currency_id.id)
         config_currency_ids = config_currency_obj.search(
-            cr, uid, [('currency_id', 'in', currency_ids)]
+            [('currency_id', 'in', currency_ids)]
         )
 
         skip_confirm = True
         for config_currency in config_currency_obj.browse(
-                cr, uid, config_currency_ids
+                config_currency_ids
         ):
             if config_currency.external_currency:
                 skip_confirm = False
         return skip_confirm
 
     @api.multi
-    def refund(self, cr, uid, ids, fields, context=None):
+    def refund(self,  fields, context=None):
         # Reverse all moves linked to the transaction
         move_obj = self.pool.get('account.move')
         date = datetime.now().strftime("%Y-%m-%d")
-        for transaction in self.browse(cr, uid, ids, context=context):
+        for transaction in self.browse( context=context):
 
             for move_field in fields:
                 move = getattr(transaction, move_field + '_id')
                 if move:
                     flag = 'cancel_' + move_field
                     reversal_move_id = move_obj.create_reversals(
-                        cr, uid, [move.id], date
+                        [move.id], date
                     )[0]
-                    move_obj.post(cr, uid, [reversal_move_id])
-                    move_obj.write(cr, uid, [reversal_move_id], {
+                    move_obj.post([reversal_move_id])
+                    move_obj.write([reversal_move_id], {
                         'wallet_action': flag,
                         'wallet_transaction_id': transaction.id
                     }, context=context)
                     self.write(
-                        cr, uid, [transaction.id],
+                        [transaction.id],
                         {move_field + '_id': False}, context=context
                     )
                     self.reconcile(
-                        cr, uid, [move.id, reversal_move_id], context=context
+                        [move.id, reversal_move_id], context=context
                     )
 
  #   Model Definition Transactions
@@ -234,7 +248,7 @@ class ExchangeTransactions(models.Model):
  #   Track the status of the transaction to mail.thread
 
  #   _track = 'state', 'account_wallet.mt_transaction_state': lambda self,
- #           cr, uid, obj, ctx=None: obj.already_published,
+ #           obj, ctx=None: obj.already_published,
 
     name = fields.Char(
         'Number', size=30, required=True)
@@ -262,9 +276,10 @@ class ExchangeTransactions(models.Model):
             [
                 ('draft', 'Draft'),
                 ('sent', 'Sent'),
-                ('confirm', 'Confirm'),
+                ('invoiced', 'Invoiced'),
+                ('confirm', 'Confirmed'),
                 ('done', 'Closed'),
-                ('confirm_refund', 'Confirm Refund'),
+                ('confirm_refund', 'Confirmed Refund'),
                 ('cancel', 'Cancelled'),
             ], 'Status', readonly=False, default='draft', required=True, track_visibility='onchange')
 

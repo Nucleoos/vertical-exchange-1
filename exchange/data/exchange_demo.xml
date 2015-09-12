@@ -17,7 +17,7 @@
             <field name="price_unit">100</field>
             <field name="currency_id" ref="COM"/>
         </record>
-        <function model="exchange.transaction" name="confirm" eval="[ref('transaction_demo1')]"/>
+        <function model="exchange.transaction" name="do_payment" eval="[ref('transaction_demo1')]"/>
 
 
         <!-- Users -->

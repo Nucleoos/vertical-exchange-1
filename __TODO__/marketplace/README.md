@@ -1,6 +1,10 @@
 # Marketplace #
 Implement a marketplace so users can exchange goods and services
 
+## THIS SOFTWARE IS NOT IN DEVELOPMENT!!!!
+Should be completely refactored to ORM and to fit in vertical exchange
+transactions engine. 
+
 ## Functions ##
 - Manage announcement (Offer and Demand)
 - Make proposition with a complex acceptation and payment workflow
@@ -27,7 +31,6 @@ Implement a marketplace so users can exchange goods and services
 - account_accountant		
 - exchange		vc
 - base	
-- base_recursive_model	vc
 - vote					vc
 	
 ## Created Menus ##

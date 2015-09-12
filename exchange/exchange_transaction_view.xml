@@ -27,13 +27,13 @@
                             help="Only to test Functions!" type="object"/>
 
 
-                    <button name="transaction_draft_cancel" states="draft" string="Cancel"
+                    <button name="do_cancel" states="draft" string="Cancel"
                             confirm="Are you sure? You can't reopen it" help="Cancel this Transaction"/>
-                    <button name="confirm" states="draft" class="oe_highlight" confirm="Are you sure?"
+                    <button name="do_payment" states="draft" class="oe_highlight" confirm="Are you sure?"
                             string="Send Payment" help="Sending a direct payment to Receiver" type="object"/>
-                    <button name="invoice" states="draft" class="oe_highlight"
+                    <button name="do_invoice" states="draft" class="oe_highlight"
                             string="Send Invoice" help="Sending a invoice get paid from Receiver" type="object"/>
-                    <button name="content" states="draft" class="oe_highlight"
+                    <button name="do_content" class="oe_highlight"
                             string="Send Message" help="Sending a message to Receiver" type="object"/>
 
                     <button name="transaction_confirm_cancel" states="confirm" string="Cancel"/>
@@ -42,7 +42,7 @@
                     <button name="reset_workflow" states="done" string="Refund" type="object"/>
                     <button name="transaction_confirm_refund_done" states="confirm_refund" string="Return to done"/>
                     <button name="transaction_confirm_refund_cancel" states="confirm_refund" class="oe_highlight" string="Confirm that you received the payment for the refund"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,confirm,done,cancel"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,invoiced,confirm,done,cancel"/>
                 </header>
              <!--   <form string="Transactions all"> -->
                     <group col="4">
