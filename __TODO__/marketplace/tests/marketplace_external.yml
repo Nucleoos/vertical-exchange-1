@@ -11,7 +11,7 @@
     currency_id: DUMMY
     rate: 1.0
 -
-  !record {model: exchange.config.accounts, id: wallet_currency_DUMMY}:
+  !record {model: exchange.config.accounts, id: exchange_currency_DUMMY}:
     config_id: base_exchange.exchange_settings
     currency_id: DUMMY
     limit_negative: 0
@@ -22,7 +22,7 @@
     partner_income_account_id: exchange.exchange_partner_bus_user_account2
     external_currency: 1
 -
-  !assert {model: exchange.config.accounts, id: wallet_currency_DUMMY, string: "The external_currency isn't correctly configured!"}:
+  !assert {model: exchange.config.accounts, id: exchange_currency_DUMMY, string: "The external_currency isn't correctly configured!"}:
     - external_currency == True
 -
   In order to test marketplace.proposition I create a new proposition

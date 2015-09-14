@@ -156,7 +156,7 @@ msgstr ""
 #: view:exchange.config.settings:exchange.view_community_configuration_wallet
 #: field:exchange.config.settings,currency_ids:0
 #: field:res.partner,exchange_account_ids:0
-#: view:res.partner.wallet.currency:exchange.view_res_partner_wallet_currency_tree
+#: view:res.partner.wallet.currency:exchange.view_res_partner_exchange_currency_tree
 msgid "Currencies"
 msgstr ""
 
@@ -165,9 +165,9 @@ msgstr ""
 #: field:exchange.config.accounts,currency_id:0
 #: field:exchange.currency.line,currency_id:0
 #: model:ir.model,name:exchange.model_res_currency
-#: model:ir.model,name:exchange.model_res_partner_wallet_currency
+#: model:ir.model,name:exchange.model_res_partner_exchange_currency
 #: field:res.partner.wallet.balance,currency_id:0
-#: view:res.partner.wallet.currency:exchange.view_res_partner_wallet_currency_form
+#: view:res.partner.wallet.currency:exchange.view_res_partner_exchange_currency_form
 #: field:res.partner.wallet.currency,currency_id:0
 msgid "Currency"
 msgstr ""
@@ -183,7 +183,7 @@ msgid "Date of the last message posted on the record."
 msgstr ""
 
 #. module: exchange
-#: field:exchange.config.settings,default_currency_id:0
+#: field:exchange.config.settings,ref_currency_id:0
 msgid "Default currency"
 msgstr ""
 
@@ -569,7 +569,7 @@ msgid "ValueLimit -"
 msgstr ""
 
 #. module: exchange
-#: field:res.currency,wallet_currency:0
+#: field:res.currency,exchange_currency:0
 msgid "Wallet currency?"
 msgstr ""
 

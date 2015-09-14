@@ -133,22 +133,22 @@
         </record>
 
         <!-- Currencies -->
-        <record id="DAP" model="res.currency">
-            <field name="name">DAP</field>
+        <record id="DOO" model="res.currency">
+            <field name="name">DOO</field>
             <field name="symbol">Đ</field>
             <field name="rounding">0.01</field>
             <field name="accuracy">4</field>
-            <field name="wallet_currency" eval="True"/>
+            <field name="exchange_currency" eval="True"/>
         </record>
-        <record id="rateDAP" model="res.currency.rate">
-            <field name="currency_id" ref="DAP" />
+        <record id="rateDOO" model="res.currency.rate">
+            <field name="currency_id" ref="DOO" />
             <field eval="time.strftime('%Y-01-01')" name="name"/>
             <field name="rate">1.0</field>
         </record>
         <!--
         <record id="base_exchange.exchange_settings" model='exchange.config.settings'>
             <field name="journal_id" ref="exchange_journal"/>
-            <field name="default_currency_id" ref="DAP"/>
+            <field name="ref_currency_id" ref="DOO"/>
         </record>
         -->
         <!-- Account Types Templates -->

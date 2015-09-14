@@ -65,7 +65,7 @@
 
         <!-- Currency -->
 
-        <record id="wallet_currency_CHF" model="exchange.config.accounts">
+        <record id="exchange_currency_CHF" model="exchange.config.accounts">
             <field name="config_id" ref="base_exchange.exchange_settings"/>
             <field name="currency_id" ref="base.CHF"/>
             <field name="limit_negative" eval="False"/>
@@ -82,7 +82,7 @@
         </record>
 
         <record id="base.CHF" model="res.currency">
-            <field name="wallet_currency" eval="True"/>
+            <field name="exchange_currency" eval="True"/>
         </record>
 
     </data>

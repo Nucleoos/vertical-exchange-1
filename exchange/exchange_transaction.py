@@ -64,8 +64,11 @@ class ExchangeTransactionTypes(models.Model):
         'exchange.config.accounts', 'Feedback account', required=False,
         help='Related account to transfer Rating points')
     is_fee = fields.Boolean('Is a fee transaction')
-    feetype_ids = fields.Many2one(
-        'exchange.transaction.type', 'Transaction Type of Fee', required=False)
+    feetype_id = fields.Many2one(
+        'exchange.transaction.type', 'Transaction Type ID', required=False)
+    feetype_ids = fields.One2many(
+        'exchange.transaction.type', 'feetype_id', 'Included Transactions', required=False)
+
 
     # Loan fields/process not yet clear?
     is_loan = fields.Boolean('Is a loan transaction type',

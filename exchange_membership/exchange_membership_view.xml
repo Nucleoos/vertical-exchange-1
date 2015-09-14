@@ -36,7 +36,6 @@
                                 <field name="limit_positive_value" attrs="{'invisible': [('limit_positive','=',False)]}"/>
                             </tree>
                         </field>
-                   <!--      <field name="wallet_currency_ids" groups="exchange.group_exchange_moderator"/> -->
                     </page>
                 </page>
             </field>

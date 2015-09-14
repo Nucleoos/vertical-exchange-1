@@ -302,7 +302,7 @@ class MarketplaceAnnouncement(orm.Model):
         except Exception:
             return False
 
-    def _default_currency_ids(self, cr, uid, context=None):
+    def _ref_currency_ids(self, cr, uid, context=None):
         # When create the announcement, it already contain
         # one line with the default currency
         proxy = self.pool.get('ir.model.data')
@@ -312,7 +312,7 @@ class MarketplaceAnnouncement(orm.Model):
         return [(0, 0, {
             'model': self._name,
             'price_unit': 1.0,
-            'currency_id': config.default_currency_id.id,
+            'currency_id': config.ref_currency_id.id,
             'field': 'currency_ids'
         })]
 
@@ -380,7 +380,7 @@ class MarketplaceAnnouncement(orm.Model):
         'city': _default_city,
         'state_id': _default_state_id,
         'country_id': _default_country_id,
-        'currency_ids': _default_currency_ids,
+        'currency_ids': _ref_currency_ids,
         'quantity': 1.0,
         'uom_id': _get_uom_id,
         'state': 'draft',
@@ -642,7 +642,7 @@ class MarketplaceProposition(orm.Model):
         ),
     }
 
-    def _default_currency_ids(self, cr, uid, context=None):
+    def _ref_currency_ids(self, cr, uid, context=None):
         # By default, fill with the currencies of the announcement
         if context is None:
             context = {}
@@ -670,7 +670,7 @@ class MarketplaceProposition(orm.Model):
         return result[1]
 
     _defaults = {
-        'currency_ids': _default_currency_ids,
+        'currency_ids': _ref_currency_ids,
         'model_id': _default_model,
         'state': 'draft',
         'skip_vote': True

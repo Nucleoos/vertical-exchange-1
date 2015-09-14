@@ -49,6 +49,10 @@ class ExchangeConfigSettings(orm.Model):
                  "CC country code -> DE Germany"
                  "BBBB Exchange code"
         ),
+        'res_company_id': fields.many2one(
+            'res.company', 'Exchange Organisation',
+            help="Organisation or Company that runs the Exchange"
+        ),
         'display_balance': fields.boolean('Everyone can see balances?'),
         'journal_id': fields.many2one(
             'account.journal', 'Community Journal', required=True
@@ -59,10 +63,12 @@ class ExchangeConfigSettings(orm.Model):
 #            auto_join=True, string='Lines'
         ),
 
-        # TBD is ev. not used anymore in the future
-        'default_currency_id': fields.many2one(
-            'res.currency', 'Default currency',
-#            domain=[('wallet_currency', '=', True)], required=False
+        # TBD may raise conflicts with exchange rates in accounting system
+        'ref_currency_id': fields.many2one(
+            'res.currency', 'Reference currency',
+            help="Currency which is used to calculate exchange rates for transaction engine /n"
+            "ATTENTION Reference currency for Odoo Accounting my differ!",
+            domain=[('exchange_currency', '=', True)], required=False
         ),
         'use_account_numbers': fields.boolean(
             'Use of Account Numbering System',
@@ -106,4 +112,15 @@ class DistributedDB(orm.Model):
     'config_id': fields.many2one(
         'exchange.config.accounts', 'Config ID',
         help='If ledger are used for an exchange system'),
+    }
+
+
+class ResCurrency(orm.Model):
+    """
+    Add a boolean in currency to identify currency usable in wallet/exchange
+    """
+    _inherit = 'res.currency'
+
+    _columns = {
+        'exchange_currency': fields.boolean('Exchange currency?', readonly=False)
     }

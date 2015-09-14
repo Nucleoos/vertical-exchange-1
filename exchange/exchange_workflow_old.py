@@ -898,7 +898,7 @@ class ResPartnerWalletCurrency(orm.Model):
             'res.partner', 'Partner', required=True, ondelete='cascade'
         ),
         'currency_id': fields.many2one('res.currency', 'Currency',
-                                       domain=[('wallet_currency', '=', True)],
+                                       domain=[('exchange_currency', '=', True)],
                                        required=True),
         'limit_negative': fields.boolean('Limit - ?'),
         'limit_negative_value': fields.float(
@@ -937,7 +937,7 @@ class ResPartnerWalletBalance(orm.Model):
         ),
         'currency_id': fields.many2one(
             'res.currency', 'Currency',
-            domain=[('wallet_currency', '=', True)], required=True
+            domain=[('exchange_currency', '=', True)], required=True
         ),
         'limit_negative': fields.boolean('Limit - ?'),
         'limit_negative_value': fields.float(
@@ -971,5 +971,5 @@ class ResCurrency(orm.Model):
     _inherit = 'res.currency'
 
     _columns = {
-        'wallet_currency': fields.boolean('Wallet currency?', readonly=True)
+        'exchange_currency': fields.boolean('Wallet currency?', readonly=True)
     }

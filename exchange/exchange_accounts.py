@@ -228,8 +228,8 @@ class AccountTemplateConfig(models.Model):
     _sql_constraints = [
         ('name', 'unique(name)',
         'We can only have one line per name'),
-#        ('default_account', 'unique(account_type,default_account)',
-#        'We can only have one default account'),
+        ('default_account', 'unique(account_type,default_account)',
+        'We can only have one default account per type'),
     ]
 
 
@@ -262,7 +262,7 @@ class AccountTemplateConfig(models.Model):
         # Mark the currency as wallet and then
         # update balance on all partners at creation
         self.pool.get('res.currency').write(
-            cr, uid, [vals['currency_id']], {'wallet_currency': True},
+            cr, uid, [vals['currency_id']], {'exchange_currency': True},
             context=context
         )
         res = super(AccountTypesConfig, self).create(
@@ -285,7 +285,7 @@ class AccountTemplateConfig(models.Model):
         for currency in self.browse(cr, uid, ids, context=context):
             self.pool.get('res.currency').write(
                 cr, uid, [currency.currency_id.id],
-                {'wallet_currency': False}, context=context
+                {'exchange_currency': False}, context=context
             )
         res = super(AccountTypesConfig, self).unlink(
             cr, uid, ids, context=context

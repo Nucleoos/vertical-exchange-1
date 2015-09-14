@@ -139,7 +139,10 @@
                         <label for="id" string="Exchange Name"/>
                         <div name="names">
                         <div>
-                            <field name="name"/>
+                            <field name="name"/><newline/>
+                            <field name="res_company_id" class="oe_inline"/>
+                            <label for="res_company_id"/>
+                            <newline/><br/>
                             <field name="code" class="oe_inline"/>
                             <label for="code"/>
                         </div>
@@ -162,8 +165,8 @@
                                 <label for="display_balance"/>
                             </div>
                             <div>
-                                <field name="default_currency_id" class="oe_inline"/>
-                                <label for="default_currency_id"/>
+                                <field name="ref_currency_id" class="oe_inline"/>
+                                <label for="ref_currency_id"/>
                             </div>
                             <div>
                                 <field name="journal_id" class="oe_inline"/>
@@ -195,5 +198,16 @@
         <!-- Settings Menu Item -->
         <menuitem action="act_account_config_all" id="menu_act_account_config_all" parent="base_exchange.menu_configuration_exchange" sequence="4"/>
 
+        <!-- Adding Exchange Currency Boolean to Currencies -->
+        <record id="form_exchange_currency_view_inherited" model="ir.ui.view">
+            <field name="name">Currency view Exchange extension</field>
+            <field name="model">res.currency</field>
+            <field name="inherit_id" ref="base.view_currency_form"/>
+            <field name="arch" type="xml">
+                 <field name="active" position="after">
+                 <field name="exchange_currency"/>
+                 </field>
+            </field>
+        </record>
     </data>
 </openerp>
