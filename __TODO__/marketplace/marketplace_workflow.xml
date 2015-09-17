@@ -189,13 +189,13 @@
             <field name="act_from" ref="act_proposition_invoiced"/>
             <field name="act_to" ref="act_proposition_confirm"/>
             <field name="signal">proposition_invoiced_confirm</field>
-            <field name="condition">test_access_role('is_sender')</field>
+            <field name="condition">test_access_role('is_issuer')</field>
         </record>
         <record id="proposition_invoiced_vote" model="workflow.transition">
             <field name="act_from" ref="act_proposition_invoiced"/>
             <field name="act_to" ref="act_proposition_vote"/>
             <field name="signal">proposition_invoiced_vote</field>
-            <field name="condition">test_access_role('is_sender')</field>
+            <field name="condition">test_access_role('is_issuer')</field>
         </record>
         <record id="proposition_confirm_cancel" model="workflow.transition">
             <field name="act_from" ref="act_proposition_confirm"/>
@@ -236,7 +236,7 @@
             <field name="act_from" ref="act_proposition_confirm_refund"/>
             <field name="act_to" ref="act_proposition_cancel"/>
             <field name="signal">proposition_confirm_refund_cancel</field>
-            <field name="condition">test_access_role('is_sender')</field>
+            <field name="condition">test_access_role('is_issuer')</field>
         </record>
 
     </data>

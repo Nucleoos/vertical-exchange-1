@@ -39,7 +39,7 @@ class ExchangeTransactionTypes(models.Model):
         'exchange.config.accounts', 'Account From', required=True)
     to_account_type_id = fields.Many2one(
         'exchange.config.accounts', 'Account To', required=True)
-    hidden = fields.Boolean('Hidden Account',
+    hidden = fields.Boolean('Hidden Transaction Type',
             help='Transactions Type is hidden to users')
     allowed_payment = fields.Boolean('Allowed Payment')
     allowed_self_payment = fields.Boolean('Allowed Self Payment')
@@ -68,10 +68,16 @@ class ExchangeTransactionTypes(models.Model):
         'exchange.transaction.type', 'Transaction Type ID', required=False)
     feetype_ids = fields.One2many(
         'exchange.transaction.type', 'feetype_id', 'Included Transactions', required=False)
-
-
+    fee_type = fields.Selection(
+            [
+                ('fix', 'Fix Amount'),
+                ('percent', 'Percentage'),
+            ], 'Type of fee', readonly=False, required=False, track_visibility='onchange')
+    fee = fields.Float(
+        'Amount of Fee', required=False,
+        help='Amount of Fee in currency or percentage')
     # Loan fields/process not yet clear?
-    is_loan = fields.Boolean('Is a loan transaction type',
+    is_loan = fields.Boolean('Is a loan transaction',
             help='Is a loan/grant transaction type')
     loan_contract_type_ids = fields.Many2one(
         'exchange.loan.contract.type',
@@ -101,7 +107,7 @@ class ExchangeMove(models.Model):
     'Transfer' -> sending money
     'Invoice'  -> sending invoice
     'Invoice Confirm'
-    'Transfer to Confirm' -> sending money to accept
+    'Transfer to Confirm' -> ??????
     'Confirmation'
     'Info' -> only message
     """
@@ -116,6 +122,17 @@ class ExchangeMove(models.Model):
 
         return sum_to - sum_from
 
+    @api.one
+    def get_field(self, field):
+        # get field from transaction model
+        # TBS does not work
+
+        # trans_line = self.env['exchange.transaction']
+        # result = trans_line.field
+        result = 1
+        print field
+        print result
+        return result
 
     _name = 'exchange.transaction.line'
     _description = 'Exchange Entries'
@@ -128,15 +145,19 @@ class ExchangeMove(models.Model):
         ('invoice','Invoice'),
         ('inv_confirm','Invoice Confirm'),
         ('transfer_to_confirm','Transfer to Confirm'),
-        ('confirm','Confirmation'),
-        ('info','Info')],
-        'Transfer Type', required=True, readonly=False, default='send',
+        ('refund','Refund'),
+        ('info','Info/Message')],
+        'Transfer Type', required=True, readonly=False,
         track_visibility='onchange', copy=False,
         help='Bla Bla status.')
+    type_id = fields.Many2one(
+        'exchange.transaction.type', 'Transactions Type', required=False)
     transfer_from_id = fields.Many2one(
-        'exchange.accounts', 'Transfer From', required=True)
+        'exchange.accounts', 'Transfer From',
+        required=True)
     transfer_to_id = fields.Many2one(
-        'exchange.accounts', 'Transfer To', required=True)
+        'exchange.accounts', 'Transfer To',
+        required=True, default=get_field)
     transfer_from_hash = fields.Text(
         'Hash From', required=False)
     transfer_to_hash = fields.Text(

@@ -283,7 +283,7 @@ msgid "Is receiver?"
 msgstr "Est le receveur ?"
 
 #. module: exchange
-#: field:exchange.transaction,is_sender:0
+#: field:exchange.transaction,is_issuer:0
 msgid "Is sender?"
 msgstr "Est l'envoyeur ?"
 

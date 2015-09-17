@@ -20,11 +20,22 @@
 
 from openerp import models, fields, api
 from openerp.exceptions import except_orm
+import openerp.addons.decimal_precision as dp
 
 #    List of Accounts for members and the system
 #    help='If ledger are used for an exchange system')
 
 class ExchangeAccounts(models.Model):
+
+    @api.multi # computed field available calculate
+    def get_available_amount(self):
+
+        return
+
+    @api.multi # computed field balance calculate
+    def get_balance(self):
+
+        return
 
     _name = 'exchange.accounts'
     _description = 'Exchange Accounts'
@@ -48,9 +59,7 @@ class ExchangeAccounts(models.Model):
     limit_positive = fields.Boolean('Limit + ?')
     limit_positive_value = fields.Float(
         'Value Limit +')
-    # Next 2 fields are not yet clear
-    available = fields.Float('Available')
-    reserved = fields.Float('Reserved')
+
     state = fields.Selection([
         ('open', 'Open'),
         ('blocked', 'Blocked'),
@@ -59,30 +68,39 @@ class ExchangeAccounts(models.Model):
         required=True, default='open', track_visibility='onchange',
         help="Status of Account"
              "Blocked, for temporary blocking transactions")
-    # Related fields (not stored in DB)
+    # Related fields (stored in DB)
     type_prefix = fields.Many2one('exchange.account.type',
         'Account Type Prefix', related='template_id.type_prefix',
-         readonly=True)
+         readonly=True, store=True)
     external_db = fields.Boolean(
         'External DB', related='template_id.external_db',
-         readonly=True,
+         readonly=True, store=True,
          help="Account is performing transactions on an a outside DB/ledger")
 
     default_account = fields.Boolean(
         'Default account', related='template_id.default_account',
-         readonly=True)
+         readonly=True, store=True)
     currency_base = fields.Many2one('res.currency',
         'Currency', related='template_id.currency_id',
          readonly=True)
     currency_symbol = fields.Char('exchange.config.accounts',
          related='template_id.currency_symbol',
+         readonly=True, store=True)
+    exchange_rate = fields.Float('res.currency',
+        'Exchange Rate', related='template_id.exchange_rate',
          readonly=True)
-#    exchange_rate = fields.Float('exchange.config.accounts',
-#        'Exchange Rate', related='template_id.exchange_rate',
-#         readonly=True)
-#    exchange_rate = fields.Float('res.currency.rate',
-#        'Exchange Rate', related='currency_base.rate',
+        # TBD Error to many vaules     readonly=True, store=True)
+#    user_id = fields.Char('res.users',
+#         'User ID', related='partner_id.id',
 #        readonly=True)
+    # Next 2 fields are not yet clear
+    available = fields.Float(
+        'Available', store=True,
+        compute=get_available_amount, track_visibility='onchange')
+    balance = fields.Float(
+        'Account Balance', store=True,
+        compute=get_balance, track_visibility='onchange')
+    reserved = fields.Float('Reserved')
 
     @api.one
     def do_account_deblock(self):
@@ -218,12 +236,16 @@ class AccountTemplateConfig(models.Model):
         'exchange.transaction.type',
         'Initial credit transaction type')
     # Related fields (not stored in DB)
+    # TBD add field name
     currency_symbol = fields.Char('res.currency',
-        related='currency_id.symbol',
-        readonly=True)
+         related='currency_id.symbol',
+         readonly=True)
     exchange_rate = fields.Float('res.currency.rate',
         'Exchange Rate', related='currency_id.rate',
         readonly=True)
+
+  #       readonly=True, digits=lambda cr:(16, 2))
+  #       digits=dp.get_precision('Account')
 
     _sql_constraints = [
         ('name', 'unique(name)',

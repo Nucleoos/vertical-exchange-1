@@ -27,20 +27,12 @@ from datetime import datetime, timedelta
 import exchange_model
 # import re
 
+
 class ExchangeTransactions(models.Model):
     """
-    Main object used for the workflow of transferring values, invoices and messages , from sender_account to receiver_account    It has his own workflow, from draft to done and can be refund.
-    The confirm state, used only when there is an external account
-    (currency whose wallet isn't managed in odoo), is used so the receiver
-    can confirm that the send the money.
-    The
+    Main object used for the workflow of transferring values, invoices and messages , from sender_account to receiver_account    It has his own workflow, from draft to paid and can be refund.
+
     """
-
-    # TBD AttributeError: 'exchange.accounts' object has no attribute 'exchange_rate'
- #   @api.onchange('account_from_id') # if account_from is set, get actual exchange rate
- #   def set_exchange_rate(self):
- #       self.exchange_rate_from = self.account_from_id.exchange_rate
-
 
 
     @api.multi
@@ -52,26 +44,32 @@ class ExchangeTransactions(models.Model):
         print self, self.exchange_rate_from, self.exchange_rate_to
         return True
 
-    @api.one
-    def tr_number_calc(self):
-        """
-        write method to get new transaction number.
-        TBD missing ref now_bup
-        :param type: The transaction number to update.
-        """
-        type2 = self.type_prefix_from + '>' + self.type_prefix_to
-        print type2
-        return type2 + '-' + datetime.now()
 
-    @api.onchange('type_id') # if account_type is set, create new Transaction NR
+    @api.onchange('type_id')  # if account_type is set, create new Transaction NR
     def set_name(self):
         """
-        TBD creates a type missmatch error
-        :param type: The transaction number to update.
+        create new Transaction NR
+        TBD on new record it generates an error?????
+        :param type_id: The type of transaction that determines the prefixes
         """
-        type2 = self.type_prefix_from + self.type_prefix_to
-        print type2
-        self.name = type2 + '-' + datetime.now()
+        if self.type_id is not None:
+            type1 = str(self.type_prefix_from.name + '>' + self.type_prefix_to.name)
+            d = datetime.now()
+            date2 = d.strftime('%Y-%m-%d %H:%M:%S')
+            # print self.type_id, date2, self.id
+            self.name = type1 + '-' + date2
+
+        # Set is_fee to yes or no depending on the One2many field in transaction.type
+        # TBD
+            self.is_fee = False
+
+    @api.onchange('account_from_id','account_to_id','amount_from')
+        # if account_from to or amount from change calculate new amount to
+    def set_amount_to(self):
+        #TBD does not work
+        amount = self.amount_from * self.exchange_rate_from * self.exchange_rate_to
+        print 'amount_to' + amount
+        self.amount_to = amount
 
 
     @api.one
@@ -81,9 +79,9 @@ class ExchangeTransactions(models.Model):
         TBD
         """
         print self.amount_from, self.exchange_rate_from, self.exchange_rate_to
-        print self.amount_from * self.exchange_rate_from * self.exchange_rate_to
-        return self.amount_from * self.exchange_rate_from * self.exchange_rate_to
-
+        amount = self.amount_from * self.exchange_rate_from * self.exchange_rate_to
+        print amount
+        return amount
 
     """
     Following functions are related to workflow
@@ -93,9 +91,9 @@ class ExchangeTransactions(models.Model):
 #       Called by workflow, launch needed action depending of the next state
 #       for transaction in self.browse(ids):
 #          fields = {'state': new_state}
-#            if new_state == 'done':
+#            if new_state == 'paid':
 #               self.prepare_move([transaction.id], 'do_payment')
-#            if new_state == 'cancel':
+#            if new_state == 'canceled':
 #              self.refund(
 #                   [transaction.id],
 #                   ['reservation', 'invoice', 'payment', 'do_payment']
@@ -103,86 +101,129 @@ class ExchangeTransactions(models.Model):
 #          self.write([transaction.id], fields)
         return True
 
-    @api.one
-    def do_payment(self):
-        # Workflow action which confirm the transaction and make the payment
+    @api.one # STEP 1
+    def act_transaction_draft(self):
+        # Workflow action 1
+        # self.state = 'sent'
+        print 'draft'
+        return True
+
+    @api.one  # STEP 2a payment
+    @api.depends('ext_from','ext_to')
+    def act_transaction_sent(self):
+        # Workflow action 2a which confirm the transaction and make the payment
         # for currency managed inside Odoo, it goes to confirm or paid state
-        # whether there is or not an external currency
-
+        # whether there is or not an external db
+        print 'sent'
+        # Test id user is allowed to do payment
+        # self.test_access_role(role)
         # Check is there is an external currency, to determine whether
-        # we should go to confirmed or paid state    #
-    #        if  ext_from = 1
-    #           skip_do_payment = self.get_skip_confirm(transaction)
-    #       if not skip_do_payment:
-    #            workflow.trg_validate(
-    #                'exchange.transaction', transaction.id,
-    #                'transaction_draft_confirm'
-    #            )
-    #        else:
-    #            workflow.trg_validate(
-    #                'exchange.transaction', transaction.id,
-    #                'transaction_draft_done'
-    #            )
+        # we should stay in sent or go to paid state
+        if self.ext_from is True | self.ext_to is True:
+            self._payment_extern()
+
+        else:
+
+                # id = self.create(cr, uid, , context=context)
+                trans_line = self.env['exchange.transaction.line']
+                new = trans_line.create(
+                    {'name': 'TEST1',
+                    'transfer_type': 'transfer',
+                    'transfer_from_id': self.account_from_id,
+                    'transfer_to_id': self.account_to_id,
+                    'amount_from': self.amount_from,
+                    'amount_to': self.amount_to,
+                    }
+                )
+                print new
         return True
 
-    @api.one
-    def do_invoice(self):
-        # Workflow action which sends a invoice to Receiver
-        self.state = 'invoiced'
+    @api.one  # Payment via external db
+    @api.depends ()
+    def _payment_extern(self):
+        # TBD check if external db connection is established
+        #perform external transaction
+            workflow.trg_validate(
+                     self._uid,
+                    'exchange.transaction', 
+                     self.transaction.id,
+                    'trans_draft-sent', self.env.cr
+            )
 
+    #    workflow.trg_validate	(uid,
+ 	#    res_type, res_id,  signal, cr 
+    #    )		
+    #    return True
+
+    @api.one  # STEP 2b invoiced
+    def act_transaction_invoiced(self):
+        # Workflow action which sends an invoice to Receiver
+        # self.state = 'invoiced'
+        print 'step invoiced'
         return True
 
-
-
-    @api.one
+    @api.one  #  Send Message
+    @api.depends('account_from_id','account_to_id')
     def do_content(self):
         # non Workflow action which sends a message to Receiver
 
+     #   trans_line = self.env['exchange.transaction.line']
+     #       new = trans_line.create(
+     #               {'name': 'Message test',
+     #               'transfer_type': 'info',
+     #               'transfer_from_id': self.account_from_id,
+     #               'transfer_to_id': self.account_to_id,
+     #               }
+     #       )
+     #   print new
+        return
+
+
+    @api.one
+    def test_access_role(self, role_to_test):
+        # Raise an exception if we try to make
+        #  an action denied for the current user
+        role = self._get_user_role()
+        print 'role_to_test' + role_to_test
+        if role != 'selfpayment':
+            print role_to_test
+     #  else
+     #      if role not role_to_test:
+     #          raise Exception(
+     #               ('Access error!'),
+     #               (
+     #                   "You need to have the role " + role_to_test +
+     #                   " to perform this action!"
+     #               ))
         return True
 
-
- #   @api.multi
- #   def test_access_role(self):
- #       # Raise an exception if we try to make
- #       #  an action denied for the current user
- #       res = self._get_user_role( {}, {})
- #       for transaction in self.browse(ids):
- #           role = res[transaction.id]
- #           if not role[role_to_test]:
- #               raise Exception(
- #                   ('Access error!'),
- #                   (
- #                       "You need to have the role " + role_to_test +
- #                       " to perform this action!"
- #                   ))
- #       return True
-
-    @api.multi
-    def _get_user_role(self, cr, uid, context=None):
+    @api.one
+    @api.depends ('sender_id','receiver_id')
+    def _get_user_role(self):
         # Control the access rights of the current user
-        user_obj = self.pool.get('res.users')
-        res = {}
-        partner_id = self.pool.get('res.users').browse(
-            cr, uid, uid, context=context
-        ).partner_id.id
-        for transaction in self.browse(context=context):
-            res[transaction.id] = {}
-            res[transaction.id]['is_sender'] = False
-            res[transaction.id]['is_receiver'] = False
-            res[transaction.id]['is_moderator'] = False
-            if transaction.sender_id.id == partner_id:
-                res[transaction.id]['is_sender'] = True
-            if transaction.receiver_id.id == partner_id:
-                res[transaction.id]['is_receiver'] = True
-            if user_obj.has_group(
-                    'exchange.group_exchange_moderator'
-            ):
-                res[transaction.id]['is_sender'] = True
-                res[transaction.id]['is_receiver'] = True
-                res[transaction.id]['is_moderator'] = True
-        return res
+    #   TBD User ID instead Partner ID is needed!
+    #   user_obj = self.pool.get('res.users')
+    #    res = {}
+    #    partner_id = self.pool.get('res.users').browse(
+    #        cr, uid, uid, context=context
+    #    ).partner_id.id
+        # user_id does not result as id
+        user_id = lambda self: self.env['exchange.model'].user_partner
+        role = 'other'
 
-    @api.multi
+        #    self.env['res.users'].search(['partner_id', '=', self.sender_id.id])
+        # print self.sender_id.id, self.receiver_id.id, user_id, self._uid
+        if self.sender_id.id == user_id:
+            role = 'is_issuer'
+            self.is_issuer = True
+        if self.receiver_id.id == user_id:
+            role = 'is_receiver'
+        if self.receiver_id.id == self._uid & self.sender_id.id == self._uid:
+            role = 'selfpayment'
+        # print role
+        return role
+
+    @api.multi  # OLD
     def prepare_move(self,  action, context=None):
         # Generate the specified transfer
         partner_obj = self.pool.get('res.partner')
@@ -192,7 +233,7 @@ class ExchangeTransactions(models.Model):
             'base_exchange', 'exchange_settings'
         )
 
-    @api.multi
+    @api.multi  # OLD
     def get_skip_confirm(self, transaction, context=None):
         # Check is there is an external currency, to determine whether
         # we should go to confirm or paid state
@@ -213,9 +254,9 @@ class ExchangeTransactions(models.Model):
                 skip_confirm = False
         return skip_confirm
 
-    @api.multi
+    @api.multi  # OLD
     def refund(self,  fields, context=None):
-        # Reverse all moves linked to the transaction
+        # Sends a refund transaction to the Creditor
         move_obj = self.pool.get('account.move')
         date = datetime.now().strftime("%Y-%m-%d")
         for transaction in self.browse( context=context):
@@ -240,6 +281,7 @@ class ExchangeTransactions(models.Model):
                         [move.id, reversal_move_id], context=context
                     )
 
+# ****************************************************************************
  #   Model Definition Transactions
     _name = 'exchange.transaction'
     _description = 'Exchange Transactions'
@@ -258,37 +300,40 @@ class ExchangeTransactions(models.Model):
     account_to_id = fields.Many2one(
         'exchange.accounts', 'Account To', required=True, track_visibility='onchange')
     type_id = fields.Many2one(
-        'exchange.transaction.type', 'Transactions Type', required=True, track_visibility='onchange')
+        'exchange.transaction.type', 'Transactions Type', required=True)
     line_ids = fields.One2many(
         'exchange.transaction.line', 'transaction_id',  'Transfer Lines', required=False)
     emission_date = fields.Datetime(
         'Emission Date', required=True, default=datetime.now().strftime("%Y-%m-%d"))
     transaction_date = fields.Datetime(
         'Transaction Date', required=False)
+    emission_from = fields.Many2one(
+        'res.partner', 'Issued from',
+        default=lambda self: self.env['exchange.model'].user_partner)
     amount_from = fields.Float(
         'Amount from Sender', required=True)
     # TBD: should be computed out of exchange rates in res.currency
     amount_to = fields.Float(
-        'Amount to Receiver', required=True, default=get_amount_to)
-    # TBD    'Amount to Receiver', required=True, default=get_amount_to())
+        'Amount to Receiver', required=True)
+
 
     state = fields.Selection(
             [
                 ('draft', 'Draft'),
-                ('sent', 'Sent'),
-                ('invoiced', 'Invoiced'),
-                ('confirm', 'Confirmed'),
-                ('done', 'Closed'),
-                ('confirm_refund', 'Confirmed Refund'),
-                ('cancel', 'Cancelled'),
+                ('sent', '⌛Sent'),
+                ('invoiced', '⌛Invoiced'),
+                ('paid', 'Paid'),
+                ('refunded', 'Refunded'),
+                ('denied', 'Denied'),
+                ('canceled', 'Cancelled'),
             ], 'Status', readonly=False, default='draft', required=True, track_visibility='onchange')
 
-    is_fee = fields.Boolean('Is a fee transaction')
+    is_fee = fields.Boolean(
+        'Transaction has fees')
+    is_invoice = fields.Boolean(
+        'Invoice Transaction')
 
-    fee_ids = fields.Many2one(
-        'exchange.transaction', 'Fee or other Transaction', required=False)
     is_loan = fields.Boolean('Is a loan transaction')
-
     loan_contract_id = fields.Many2one(
         'exchange.loan.contract', 'Related Loan contract', required=False)
 
@@ -312,16 +357,40 @@ class ExchangeTransactions(models.Model):
 #         readonly=True)
     exchange_rate_to = fields.Float(
         'Exchange rate Receiver', required=True, default=1.0)
-
     ext_from = fields.Boolean('From external Account',
         related='account_from_id.external_db',
-        readonly=True)
+        readonly=True, store=True)
     ext_to = fields.Boolean('To external Account',
         related='account_to_id.external_db',
         readonly=True)
     type_prefix_from = fields.Many2one('exchange.account.type',
-         'Prefix from', related='type_id.type_prefix_from',
-         readonly=True)
+        'Prefix from', related='type_id.type_prefix_from',
+        readonly=True)
     type_prefix_to = fields.Many2one('exchange.account.type',
-         'Prefix to', related='type_id.type_prefix_to',
-         readonly=True)
+        'Prefix to', related='type_id.type_prefix_to',
+        readonly=True)
+
+    # TBD Computed fields (not stored in DB)
+    user_role = fields.Char(
+         'User role', store= False,
+         compute='_get_user_role', track_visibility='onchange')
+
+# TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#    is_issuer = fields.Boolean(
+#         'Is Issuer', store= True,
+#         compute='_compute_is_issuer')
+
+#    @api.one
+#    @api.depends ('sender_id')
+#    def _compute_is_issuer(self):
+#        issuer = False
+#        user_id = 1
+#        #    self.env['res.users'].search(['partner_id', '=', self.sender_id.id])
+#        print self.env.cr
+#        print self.sender_id.id, user_id, self._uid
+#        if user_id == self._uid:
+#            issuer = True
+#            self.is_issuer = True
+#        print issuer
+#        return True

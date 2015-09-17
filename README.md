@@ -1,5 +1,9 @@
 # Vertical Exchange
-Refactoring of exchange related modules of vertical-community modules for Odoo. 
+
+The aim of the Co–oo transaction engine (vertical-exchange) is to get a kind of multipurpose module to cover many aspects toward the use of Community / Crypto Currencies in Odoo.
+†
+## Content
+Refactored exchange related modules of vertical-community modules for Odoo. 
 
 ## THIS SOFTWARE IS STILL IN DEVELOPMENT!!!!
 

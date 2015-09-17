@@ -20,29 +20,33 @@
             <field name="name">exchange.transaction.form</field>
             <field name="model">exchange.transaction</field>
             <field name="arch" type="xml">
-                <form string="Transaction" version="8.0">
+                <form string="Transaction" version="7.0">
              <!--   <field name="model_name" invisible="1"/> -->
                 <header>
-                    <button name="do_test" states="draft" string="Test"
+              <!--        <button name="do_test" states="draft" string="Test"
                             help="Only to test Functions!" type="object"/>
-
-
-                    <button name="do_cancel" states="draft" string="Cancel"
-                            confirm="Are you sure? You can't reopen it" help="Cancel this Transaction"/>
-                    <button name="do_payment" states="draft" class="oe_highlight" confirm="Are you sure?"
-                            string="Send Payment" help="Sending a direct payment to Receiver" type="object"/>
-                    <button name="do_invoice" states="draft" class="oe_highlight"
-                            string="Send Invoice" help="Sending a invoice get paid from Receiver" type="object"/>
+                    -->
+                    <button name="do_cancel" states="draft,sent,invoiced" string="Cancel" type="workflow"
+                            paid="Are you sure? You can't reopen it" help="Cancel this Transaction"/>
+                    <button name="do_payment" states="draft" class="oe_highlight" type="workflow" confirm="Are you sure to send a direct payment?"
+                            string="Send Payment" help="Sending a direct payment to Receiver"/>
+                    <button name="do_invoice" states="draft" type="workflow" class="oe_highlight" confirm="Are you sure to send this invoice?"
+                            string="Send Invoice" help="Sending a invoice get paid from Receiver"/>
+                    <button name="do_deny_invoice" states="invoiced" type="workflow" class="oe_highlight"
+                            string="Deny payment" help="Confirm that you don't accept the invoice"/>
+                    <button name="do_confirm_invoice" states="invoiced" type="workflow" class="oe_highlight"
+                            string="Pay Invoice" help="Confirm the payment of the invoice"/>
+                    <button name="do_refund" states="paid" string="Refund" type="workflow"/>
+                    <button name="do_draft" states="canceled" string="Put in draft" type="workflow"/>
                     <button name="do_content" class="oe_highlight"
                             string="Send Message" help="Sending a message to Receiver" type="object"/>
 
-                    <button name="transaction_confirm_cancel" states="confirm" string="Cancel"/>
-                    <button name="transaction_confirm_done" states="confirm" class="oe_highlight" string="Confirm that your have received the payment"/>
-                    <button name="reset_workflow" states="cancel" string="Put in draft" type="object"/>
-                    <button name="reset_workflow" states="done" string="Refund" type="object"/>
+                <!-- Needed?
                     <button name="transaction_confirm_refund_done" states="confirm_refund" string="Return to done"/>
                     <button name="transaction_confirm_refund_cancel" states="confirm_refund" class="oe_highlight" string="Confirm that you received the payment for the refund"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,invoiced,confirm,done,cancel"/>
+                 -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,invoiced,paid,denied,refunded,canceled"/>
+
                 </header>
              <!--   <form string="Transactions all"> -->
                     <group col="4">
@@ -50,17 +54,18 @@
                         <field name="name"/>
                         <field name="emission_date"/>
                         <field name="transaction_date"/>
-                        <newline/>
-                        <field name="state"/>
+                        <field name="emission_from"/>
+                <!--    <field name="state"/>  -->
+                        <field name="user_role"/>
                     </group>
                     <group col="4">
                         <field name="is_fee"/>
-                        <field name="fee_ids"/>
                         <field name="is_loan"/>
+                        <field name="is_invoice"/>
                         <field name="loan_contract_id"/>
                     </group>
                     <group name="from_grp">
-                        <label for="id" string="Transaction from"/>
+                        <label for="id" string="Sender"/>
                         <group col="4">
                         <field name="sender_id"/>
                         <field name="account_from_id"/>
@@ -72,7 +77,7 @@
                     </group>
 
                     <group name="to_grp">
-                        <label for="id" string="Transaction to"/>
+                        <label for="id" string="Receiver"/>
                         <group col="4">
                         <field name="receiver_id"/>
                         <field name="account_to_id"/>
@@ -161,12 +166,16 @@
                         <label for="id" string="Fees / Loans"/>
                         <group col="4">
                         <field name="is_fee" modifiers="{}"/>
-                        <field name="feetype_ids" modifiers="{}"/>
+                        <field name="fee_type" attrs="{'invisible': [('is_fee','=',False)]}"/>
+                        <field name="fee" attrs="{'invisible': [('is_fee','=',False)]}"/>
                         <field name="is_loan" modifiers="{}"/>
                         <field name="loan_contract_type_ids" modifiers="{}"/>
                         <field name="loan_tr_type" modifiers="{}"/>
                         </group>
                     </group>
+                    <!-- One2 Many Additional Transactions -->
+                    <label for="feetype_ids" class="oe_inline"/>
+                    <field name="feetype_ids" attrs="{'invisible': [('is_fee','=',True)]}"/>
 
                     <group name="text_grp">
                         <label for="id" string="Messages"/>
@@ -177,19 +186,8 @@
                         <field name="confirmation_message" modifiers="{}"/>
                         </group>
                     </group>
-                    <group name="feedback_grp">
-                        <label for="id" string="Feedback on transaction"/>
-                        <group col="4">
-                            <field name="requires_feedback" modifiers="{}"/>
-                            <field name="default_feedback_level" modifiers="{}"/>
-                            <field name="feedback_enabled_since" modifiers="{}"/>
-                            <field name="feedback_expiration_time_number" modifiers="{}"/> days
-                            <field name="feedback_reply_expiration_time_number" modifiers="{}"/> days
-                            <field name="feedback_account_id" modifiers="{}"/>
-                        </group>
-                    </group>
 
-                     <group name="info_grp">
+                    <group name="info_grp">
                         <label for="id" string="Dataset info"/>
                         <group col="4">
                             <field name="create_uid"/>
@@ -241,8 +239,10 @@
                 <form string="Transactions Line all">
                     <group col="4">
                         <field name="name"/>
-                        <field name="ref"/>
                         <field name="transfer_type"/>
+                        <field name="ref"/>
+                        <field name="type_id"/>
+                        <field name="date"/>
                     </group>
                     <group name="hash_grp">
                         <label for="id" string="From / to"/>
@@ -279,6 +279,34 @@
        --> </record>
         <!-- Association Menu Item -->
         <menuitem action="act_exchange_transaction_line_all" id="menu_act_transaction_line_asoc_all" parent="base_exchange.menu_association_exchange_admin" sequence="3"/>
+<!-- *********************************************************************************** -->
 
+
+       <!--  Transactions line view new message form -->
+        <record id="view_transaction_line_info_form" model="ir.ui.view">
+            <field name="name">exchange.transaction.line.info.form</field>
+            <field name="model">exchange.transaction.line</field>
+            <field name="arch" type="xml">
+                <form string="Transactions Line all">
+                    <group col="4">
+                        <field name="name"/>
+                        <field name="transfer_type"/>
+                        <field name="ref"/>
+                        <field name="type_id"/>
+                        <field name="date"/>
+                    </group>
+                    <group name="hash_grp">
+                        <label for="id" string="From / to"/>
+                        <group col="4">
+                        <field name="transfer_from_id"/>
+                        <field name="transfer_to_id"/>
+                        </group>
+                    </group>
+                    <group>
+                       <field name="content"/>
+                    </group>
+                </form>
+            </field>
+        </record>
     </data>
 </openerp>

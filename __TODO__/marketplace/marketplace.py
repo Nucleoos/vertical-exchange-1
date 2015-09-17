@@ -514,17 +514,17 @@ class MarketplaceProposition(orm.Model):
             values['is_moderator_or_aggree'] = False
 
             if proposition.type == 'want':
-                is_sender = False
-                if values['is_sender']:
-                    is_sender = True
-                values['is_sender'] = False
+                is_issuer = False
+                if values['is_issuer']:
+                    is_issuer = True
+                values['is_issuer'] = False
                 if values['is_receiver']:
-                    values['is_sender'] = True
+                    values['is_issuer'] = True
                 values['is_receiver'] = False
-                if is_sender:
+                if is_issuer:
                     values['is_receiver'] = True
 
-            if values['is_sender']:
+            if values['is_issuer']:
                 values['is_dispute'] = True
                 if proposition.type == 'offer':
                     values['is_user'] = True
@@ -809,7 +809,7 @@ class MarketplaceProposition(orm.Model):
         # Launch the payment of the proposition.
         # If an external currency is needed, it go to the confirm state
         transaction_obj = self.pool.get('account.wallet.transaction')
-        self.test_access_role(cr, uid, ids, 'is_sender', *args)
+        self.test_access_role(cr, uid, ids, 'is_issuer', *args)
 
         for proposition in self.browse(cr, uid, ids):
             if proposition.state == 'invoiced':

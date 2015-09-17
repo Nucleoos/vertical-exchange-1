@@ -58,7 +58,7 @@ class AccountWalletTransaction(orm.Model):
             if transaction.sender_id.group_id and partner_id \
                     in [p.id for p in
                         transaction.sender_id.group_id.partner_wallet_ids]:
-                res[transaction.id]['is_sender'] = True
+                res[transaction.id]['is_issuer'] = True
             if transaction.receiver_id.group_id \
                     and partner_id in [
                         p.id for p in transaction.receiver_id.
@@ -68,7 +68,7 @@ class AccountWalletTransaction(orm.Model):
         return res
 
     _columns = {
-        'is_sender': fields.function(
+        'is_issuer': fields.function(
             _get_user_role, type="boolean", string="Is sender?", multi='role'
         ),
         'is_receiver': fields.function(
