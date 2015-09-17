@@ -119,4 +119,4 @@ In Odoo itself the same workflow looks as this sheet:
 ![Transaction - Odoo Workflow](img/TransactionWorkflow1-Odoo.png) 
   
 The transition trigger are showed in the first line and the conditions for that transition in the second.
-For example "do_payment" is the name of the "Send Payment" button and "   
+For example "do_payment" is the name of the "Send Payment" button and "test_access_role..." is to check if the user has the right to perform this step.   
