@@ -27,15 +27,6 @@ import openerp.addons.decimal_precision as dp
 
 class ExchangeAccounts(models.Model):
 
-    @api.multi # computed field available calculate
-    def get_available_amount(self):
-
-        return
-
-    @api.multi # computed field balance calculate
-    def get_balance(self):
-
-        return
 
     _name = 'exchange.accounts'
     _description = 'Exchange Accounts'
@@ -83,23 +74,26 @@ class ExchangeAccounts(models.Model):
     currency_base = fields.Many2one('res.currency',
         'Currency', related='template_id.currency_id',
          readonly=True)
-    currency_symbol = fields.Char('exchange.config.accounts',
-         related='template_id.currency_symbol',
-         readonly=True, store=True)
-    exchange_rate = fields.Float('res.currency',
+
+    exchange_rate = fields.Float(
         'Exchange Rate', related='template_id.exchange_rate',
          readonly=True)
         # TBD Error to many vaules     readonly=True, store=True)
 #    user_id = fields.Char('res.users',
 #         'User ID', related='partner_id.id',
 #        readonly=True)
-    # Next 2 fields are not yet clear
+    with_messaging = fields.Boolean(
+        string='Messaging', related='template_id.with_messaging',
+        readonly=True)
+
+    # Computed fields
+    # Next 2 fields are TBD
     available = fields.Float(
-        'Available', store=True,
-        compute=get_available_amount, track_visibility='onchange')
+        'Available', store=False,
+        compute='_get_available_amount')
     balance = fields.Float(
-        'Account Balance', store=True,
-        compute=get_balance, track_visibility='onchange')
+        'Account Balance', store=False,
+        compute='_get_balance')
     reserved = fields.Float('Reserved')
 
     @api.one
@@ -113,6 +107,19 @@ class ExchangeAccounts(models.Model):
     @api.one
     def do_account_close(self):
         self.state = 'closed'
+
+    @api.one
+    @api.depends('balance','limit_negative_value') # computed field available calculate
+    def _get_available_amount(self):
+
+         for record in self:
+             record.available = self.balance - self.limit_negative_value
+
+    @api.one # computed field balance calculate
+    def _get_balance(self):
+
+        self.balance = 100.0
+
 
 #    @api.one
 #    @api.constrains('account_type', 'partner_id', 'number')
@@ -197,15 +204,19 @@ class AccountTemplateConfig(models.Model):
         'Hidden Account',
         help='Account is hidden to users')
 
-    # TBD Filter on Many2one   about 'product.public.category' = Membership
-    membership_type = fields.Many2one(
-        'product.product', 'Type of membership', required=False,
-        help='For this of membership the accounts will be used')
+    with_messaging = fields.Boolean(
+        'Messaging',
+        help='Account allows Messaging')
 
     default_account = fields.Boolean(
         'Default Account',
         default=False,
         help='This account will be used/attached for new users of the group')
+
+    # TBD Filter on Many2one   about 'product.public.category' = Membership
+    membership_type = fields.Many2one(
+        'product.product', 'Type of membership', required=False,
+        help='For this of membership the accounts will be used')
 
     currency_id = fields.Many2one(
         'res.currency', 'Currency', required=True)
@@ -237,10 +248,8 @@ class AccountTemplateConfig(models.Model):
         'Initial credit transaction type')
     # Related fields (not stored in DB)
     # TBD add field name
-    currency_symbol = fields.Char('res.currency',
-         related='currency_id.symbol',
-         readonly=True)
-    exchange_rate = fields.Float('res.currency.rate',
+
+    exchange_rate = fields.Float(
         'Exchange Rate', related='currency_id.rate',
         readonly=True)
 

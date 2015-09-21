@@ -29,12 +29,12 @@
                             <tree string="Accounts">
                                 <field name="template_id" class="oe_inline"/>
                                 <field name="name" style="bold"/>
-                                <field name="currency_base"/>
                                 <field name="limit_negative" invisible="1"/>
                                 <field name="limit_negative_value" attrs="{'invisible': [('limit_negative','=',False)]}"/>
                                 <field name="limit_positive" invisible="1"/>
                                 <field name="limit_positive_value" attrs="{'invisible': [('limit_positive','=',False)]}"/>
-                                <field name="balance" attrs="{'invisible': [('limit_positive','=',False)]}"/>
+                                <field name="balance" widget="monetary" options="{'currency_field': 'currency_base'}"/>
+                                <field name="currency_base"/>
                             </tree>
                         </field>
                     </page>

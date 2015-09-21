@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+
         <!-- Loan view tree -->
         <record id="view_loan_tree" model="ir.ui.view">
             <field name="name">exchange.loan.contract.tree</field>
@@ -8,6 +9,7 @@
             <field name="arch" type="xml">
                 <tree string="Loans all">
                     <field name="name"/>
+                    <field name="partner_id"/>
                     <field name="loan_type_id"/>
                     <field name="total_amount"/>
                 </tree>
@@ -20,12 +22,22 @@
             <field name="model">exchange.loan.contract</field>
             <field name="arch" type="xml">
                 <form string="Loans all">
+                    <header>
+                    <button name="do_cancel" states="draft," string="Cancel" type="object"
+                            paid="Are you sure? You can't reopen it" help="Cancel this Loan"/>
+                    <button name="do_loan" states="draft" class="oe_highlight" type="object" confirm="Are you sure to send this payment?"
+                            string="Send Loan to Debitor" help="Sending a loan payment to Debitor"/>
+                    <button name="do_repay" states="active" type="object" class="oe_highlight" confirm="Are you sure to send this payment?"
+                            string="Repay the loan" help="Repay the loan to the Creditor"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,delayed,done,cancel"/>
+                    </header>
+
                     <group col="4">
                         <field name="name" modifiers="{'required': true}"/>
-                        <field name="total_amount" modifiers="{}"/>
+                        <field name="total_amount"  widget="monetary" options="{'currency_field': 'currency_from'}"/>
+                        <field name="currency_from"/>
+                        <field name="partner_id"/>
                         <field name="loan_type_id" modifiers="{}"/>
-                        <field name="state" modifiers="{}"/>
-
                         <field name="loan_repayment_transaction_id" modifiers="{}"/>
                         <field name="loan_interest_transaction_id" modifiers="{}"/>
                         <field name="loan_monthly_interest" modifiers="{}"/>
@@ -68,12 +80,12 @@
         <menuitem action="act_exchange_loan_all" id="menu_act_loan_all" parent="base_exchange.menu_configuration_exchange" sequence="8"/>
 
         <record id="act_exchange_loan_my" model="ir.actions.act_window">
-            <field name="name">My Loan</field>
+            <field name="name">My Loans</field>
             <field name="res_model">exchange.loan.contract</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field eval="False" name="view_id"/>
-            <field name="domain">[('sender_id','!=',uid)]</field>
+            <field name="domain">[('partner_id','=',uid)]</field>
         <!--  <field name="domain">['|',('sender_id.user_ids','in',uid),('receiver_id.user_ids','in',uid)]</field> -->
             <field name="context">{}</field>
      <!--        <field name="search_view_id" ref="view_exchange_loan_search"/>
@@ -89,7 +101,6 @@
             <field name="arch" type="xml">
                 <tree string="Loans type all">
                     <field name="name"/>
-
                     <field name="loan_max_amount"/>
                 </tree>
             </field>
@@ -104,11 +115,12 @@
                 <form string="Loan Type all">
                     <group col="6">
                         <field name="name" modifiers="{'required': true}"/>
-                        <field name="loan_max_amount" modifiers="{}"/>
+                        <field name="loan_max_amount" widget="monetary" options="{'currency_field': 'currency_from'}"/>
                         <field name="loan_revolving" modifiers="{}"/>
                     </group>
                     <group name="transact_grp">
                          <field name="loan_grant_type_id" modifiers="{}"/>
+                         <field name="currency_from"/>
                     </group>
                     <group name="params_grp">
                         <label for="id" string="Parameters"/>

@@ -36,6 +36,8 @@ class ExchangeLoanContractsTypes(models.Model):
     name = fields.Char('Type Name', size=64, translate=True, required=True)
     desc = fields.Text('Description', translate=True,)
     contract = fields.Text('Contract Text', translate=True,)
+    account_from_id = fields.Many2one(
+        'exchange.accounts', 'Account to rise loan', required=True)
 
     loan_contract_ids = fields.One2many(
         'exchange.loan.contract', 'loan_type_id',
@@ -60,7 +62,10 @@ class ExchangeLoanContractsTypes(models.Model):
     loan_grant_fee_value = fields.Float('Loan grant fee value')
     loan_expiration_fee_value = fields.Float('Loan expiration fee value')
     loan_repayment_days = fields.Integer('Loan repayment days')
-
+    #Related feilds
+    currency_from = fields.Many2one('res.currency',
+        'Currency from', related='account_from_id.currency_base',
+         readonly=True)
 
 
 class ExchangeLoanContracts(models.Model):
@@ -76,6 +81,9 @@ class ExchangeLoanContracts(models.Model):
         'exchange.transaction', 'loan_contract_id',
         'Loan transactions',
          help='All transactions related to the loan')
+    partner_id = fields.Many2one(
+        'res.partner', 'Partner', ondelete='cascade',
+         help='Partner/Customer who gets the loan')
     total_amount = fields.Float('Total amount of Loan')
     loan_type_id = fields.Many2one(
         'exchange.loan.contract.type',
@@ -100,16 +108,18 @@ class ExchangeLoanContracts(models.Model):
     state = fields.Selection(
             [
                 ('draft', 'Draft'),
-                ('active', 'Active'),
+                ('active', '⌛Active'),
                 ('delayed', 'Delayed'),
                 ('done', 'Closed'),
                 ('donedelayed', 'Closed delayed'),
                 ('default', 'Defaulted'),
-                ('cancel', 'Cancelled'),
-            ], 'Status', readonly=False, required=True, track_visibility='onchange')
+                ('cancel', 'Canceled'),
+            ], 'Status', default='draft', required=True, track_visibility='onchange')
 
-
-
+    # Related fields
+    currency_from = fields.Many2one('res.currency',
+        'Currency from', related='loan_type_id.currency_from',
+         readonly=True)
 
 
 

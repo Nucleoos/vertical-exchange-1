@@ -53,7 +53,9 @@ class ExchangeTransactions(models.Model):
         :param type_id: The type of transaction that determines the prefixes
         """
         if self.type_id is not None:
-            type1 = str(self.type_prefix_from.name + '>' + self.type_prefix_to.name)
+            t1 = str(self.type_prefix_from.name)
+            t2 = str(self.type_prefix_to.name)
+            type1 = str(t1 + '>' + t2)
             d = datetime.now()
             date2 = d.strftime('%Y-%m-%d %H:%M:%S')
             # print self.type_id, date2, self.id
@@ -68,125 +70,46 @@ class ExchangeTransactions(models.Model):
     def set_amount_to(self):
         #TBD does not work
         amount = self.amount_from * self.exchange_rate_from * self.exchange_rate_to
-        print 'amount_to' + amount
+
         self.amount_to = amount
 
+    @api.multi  # TBD
+    def _get_total_of_trans(self, cursor, user, ids, context=None):
+        res = {}
+        for trans in self.browse(cursor, user, ids, context=context):
+            if trans.invoiced:
+                res[trans.id] = 100.0
+                continue
+            tot = 0.0
+            for invoice in trans.invoice_ids:
+                if invoice.state not in ('draft', 'canceled'):
+                    tot += invoice.amount_untaxed
+            if tot:
+                res[trans.id] = min(100.0, tot * 100.0 / (trans.amount_untaxed or 1.00))
+            else:
+                res[trans.id] = 0.0
+        return res
 
-    @api.one
-    def get_amount_to(self):
-        """
-        write method to get amount after exchange range calculation.
-        TBD
-        """
-        print self.amount_from, self.exchange_rate_from, self.exchange_rate_to
-        amount = self.amount_from * self.exchange_rate_from * self.exchange_rate_to
-        print amount
-        return amount
-
-    """
-    Following functions are related to workflow
-    """
-    @api.multi
-    def change_state(self, new_state, *args):
-#       Called by workflow, launch needed action depending of the next state
-#       for transaction in self.browse(ids):
-#          fields = {'state': new_state}
-#            if new_state == 'paid':
-#               self.prepare_move([transaction.id], 'do_payment')
-#            if new_state == 'canceled':
-#              self.refund(
-#                   [transaction.id],
-#                   ['reservation', 'invoice', 'payment', 'do_payment']
-#              )
-#          self.write([transaction.id], fields)
-        return True
-
-    @api.one # STEP 1
-    def act_transaction_draft(self):
-        # Workflow action 1
-        # self.state = 'sent'
-        print 'draft'
-        return True
-
-    @api.one  # STEP 2a payment
-    @api.depends('ext_from','ext_to')
-    def act_transaction_sent(self):
-        # Workflow action 2a which confirm the transaction and make the payment
-        # for currency managed inside Odoo, it goes to confirm or paid state
-        # whether there is or not an external db
-        print 'sent'
-        # Test id user is allowed to do payment
-        # self.test_access_role(role)
-        # Check is there is an external currency, to determine whether
-        # we should stay in sent or go to paid state
-        if self.ext_from is True | self.ext_to is True:
-            self._payment_extern()
-
-        else:
-
-                # id = self.create(cr, uid, , context=context)
-                trans_line = self.env['exchange.transaction.line']
-                new = trans_line.create(
-                    {'name': 'TEST1',
-                    'transfer_type': 'transfer',
-                    'transfer_from_id': self.account_from_id,
-                    'transfer_to_id': self.account_to_id,
-                    'amount_from': self.amount_from,
-                    'amount_to': self.amount_to,
-                    }
-                )
-                print new
-        return True
-
-    @api.one  # Payment via external db
-    @api.depends ()
-    def _payment_extern(self):
-        # TBD check if external db connection is established
-        #perform external transaction
-            workflow.trg_validate(
-                     self._uid,
-                    'exchange.transaction', 
-                     self.transaction.id,
-                    'trans_draft-sent', self.env.cr
-            )
-
-    #    workflow.trg_validate	(uid,
- 	#    res_type, res_id,  signal, cr 
-    #    )		
-    #    return True
-
-    @api.one  # STEP 2b invoiced
-    def act_transaction_invoiced(self):
-        # Workflow action which sends an invoice to Receiver
-        # self.state = 'invoiced'
-        print 'step invoiced'
-        return True
-
-    @api.one  #  Send Message
-    @api.depends('account_from_id','account_to_id')
-    def do_content(self):
-        # non Workflow action which sends a message to Receiver
-
-     #   trans_line = self.env['exchange.transaction.line']
-     #       new = trans_line.create(
-     #               {'name': 'Message test',
-     #               'transfer_type': 'info',
-     #               'transfer_from_id': self.account_from_id,
-     #               'transfer_to_id': self.account_to_id,
-     #               }
-     #       )
-     #   print new
+    @api.multi  # TBD
+    def _check_selfpayment(self):
         return
-
 
     @api.one
     def test_access_role(self, role_to_test):
         # Raise an exception if we try to make
         #  an action denied for the current user
         role = self._get_user_role()
-        print 'role_to_test' + role_to_test
+        print 'role_to_test ', role_to_test
         if role != 'selfpayment':
-            print role_to_test
+            check = self._check_selfpayment()
+            if check is False:
+                raise Exception(
+                    ('Access error!'),
+                    (
+                        "Action not allowed!"
+                        "Payments to accounts of same ownership are not allowed"
+                    ))
+
      #  else
      #      if role not role_to_test:
      #          raise Exception(
@@ -197,7 +120,7 @@ class ExchangeTransactions(models.Model):
      #               ))
         return True
 
-    @api.one
+    @api.one  # computed field
     @api.depends ('sender_id','receiver_id')
     def _get_user_role(self):
         # Control the access rights of the current user
@@ -220,18 +143,10 @@ class ExchangeTransactions(models.Model):
             role = 'is_receiver'
         if self.receiver_id.id == self._uid & self.sender_id.id == self._uid:
             role = 'selfpayment'
-        # print role
+        # print 'role ', role
         return role
 
-    @api.multi  # OLD
-    def prepare_move(self,  action, context=None):
-        # Generate the specified transfer
-        partner_obj = self.pool.get('res.partner')
-        move_obj = self.pool.get('account.move')
-        company_obj = self.pool.get('res.company')
-        config = self.pool.get('ir.model.data').get_object(
-            'base_exchange', 'exchange_settings'
-        )
+
 
     @api.multi  # OLD
     def get_skip_confirm(self, transaction, context=None):
@@ -254,12 +169,185 @@ class ExchangeTransactions(models.Model):
                 skip_confirm = False
         return skip_confirm
 
+    @api.one  # Payment via external db
+    @api.depends ()
+    def _payment_extern(self):
+        # 1. TBD check if external db connection is established
+
+        # 2. perform external transaction
+
+        return False
+
+# ****************************************************************************
+    #   Model Definition Transactions
+    _name = 'exchange.transaction'
+    _description = 'Exchange Transactions'
+    _inherit = ['mail.thread']
+    _order = 'emission_date'
+    #   Track the status of the transaction to mail.thread
+    #   _track = 'state', 'account_wallet.mt_transaction_state': lambda self,
+    #           obj, ctx=None: obj.already_published,
+
+    name = fields.Char(
+        'Number', size=30, required=True)
+        # TBD       default=tr_number_calc('type_id'))
+    account_from_id = fields.Many2one(
+        'exchange.accounts', 'Account From', required=True, state={'draft': [('readonly', False)]}, track_visibility='onchange')
+    account_to_id = fields.Many2one(
+        'exchange.accounts', 'Account To', required=True, state={'draft': [('readonly', False)]}, track_visibility='onchange')
+    type_id = fields.Many2one(
+        'exchange.transaction.type', 'Transactions Type', state={'draft': [('readonly', False)]}, required=True)
+    line_ids = fields.One2many(
+        'exchange.transaction.line', 'transaction_id',  'Transfer Lines', required=False)
+    emission_date = fields.Datetime(
+        'Emission Date', required=True, readonly=True, default=datetime.now().strftime("%Y-%m-%d"))
+    transaction_date = fields.Datetime(
+        'Transaction Date', required=False)
+    emission_from = fields.Many2one(
+        'res.partner', 'Issued from',
+        default=lambda self: self.env['exchange.model'].user_partner)
+    amount_from = fields.Float(
+        'Amount from Sender', state={'draft': [('readonly', False)]}, required=True)
+    # TBD: should be computed out of exchange rates in res.currency
+    amount_to = fields.Float(
+        'Amount to Receiver', required=True, state={'draft': [('readonly', False)]},
+        track_visibility='onchange')
+
+    state = fields.Selection(
+            [
+                ('draft', 'Draft'),
+                ('sent', '⌛Sent'),
+                ('invoiced', '⌛Invoiced'),
+                ('paid', 'Paid'),
+                ('refunded', 'Refunded'),
+                ('denied', 'Denied'),
+                ('canceled', 'Cancelled'),
+            ], 'Status', readonly=False, default='draft', required=True, track_visibility='onchange')
+
+    is_fee = fields.Boolean(
+        'Transaction has fees', state={'draft': [('readonly', False)]})
+    is_invoice = fields.Boolean(
+        'Invoice Transaction', state={'draft': [('readonly', False)]})
+
+    is_loan = fields.Boolean('Is a loan transaction')
+    loan_contract_id = fields.Many2one(
+        'exchange.loan.contract', 'Related Loan contract', state={'draft': [('readonly', False)]}, required=False)
+
+    # Related fields (not stored in DB)
+    sender_id = fields.Many2one('res.partner',
+         'Sending Partner', related='account_from_id.partner_id',
+         readonly=True)
+    receiver_id = fields.Many2one('res.partner',
+         'Receiving Partner', related='account_to_id.partner_id',
+         readonly=True)
+    currency_from = fields.Many2one('res.currency',
+        'Currency from', related='account_from_id.currency_base',
+         readonly=True)
+    currency_to = fields.Many2one('res.currency',
+        'Currency to', related='account_to_id.currency_base',
+         readonly=True)
+    exchange_rate_from = fields.Float(
+        'Exchange rate Sender', related='account_from_id.exchange_rate',
+        readonly=True, store=True)
+    exchange_rate_to = fields.Float(
+        'Exchange rate Receiver', related='account_to_id.exchange_rate',
+        readonly=True, store=True)
+    ext_from = fields.Boolean(
+        'From external Account', related='account_from_id.external_db',
+        readonly=True, store=True)
+    ext_to = fields.Boolean(
+        'To external Account', related='account_to_id.external_db',
+        readonly=True)
+    type_prefix_from = fields.Many2one('exchange.account.type',
+        'Prefix from', related='type_id.type_prefix_from',
+        readonly=True)
+    type_prefix_to = fields.Many2one('exchange.account.type',
+        'Prefix to', related='type_id.type_prefix_to',
+        readonly=True)
+    messaging_from = fields.Boolean(
+        string='Messaging from', related='account_from_id.with_messaging',
+        readonly=True)
+    messaging_to = fields.Boolean(
+        string='Messaging to', related='account_to_id.with_messaging',
+        readonly=True)
+
+    # TBD Computed fields (not stored in DB)
+    user_role = fields.Char(
+         'User role', store=False,
+         compute='_get_user_role', track_visibility='onchange')
+
+    """
+    Following functions are related to workflow
+    """
+    @api.multi
+    def change_state(self, new_state, *args):
+#       Called by workflow, launch needed action depending of the next state
+#       for transaction in self.browse(ids):
+#          fields = {'state': new_state}
+#            if new_state == 'paid':
+#               self.prepare_move([transaction.id], 'do_payment')
+#            if new_state == 'canceled':
+#              self.refund(
+#                   [transaction.id],
+#                   ['reservation', 'invoice', 'payment', 'do_payment']
+#              )
+#          self.write([transaction.id], fields)
+        return True
+
+    @api.one # STAGE 1
+    def action_draft(self):
+        # Workflow action 1
+        # self.state = 'sent'
+        # write({'state':'sent'})
+        print 'draft'
+        return True
+
+    @api.one  # STAGE 2a payment
+    @api.depends('ext_from','ext_to')
+    def action_send(self):
+        # Workflow action 2a which confirm the transaction and make the payment
+        # for currency managed inside Odoo, it goes to confirm or paid state
+        # whether there is or not an external db
+
+        # 1. Test role done by transition
+        # 2 Check is there is an external currency, to determine whether
+        # we should stay in sent or go to paid state
+        if self.ext_from is True | self.ext_to is True:
+            self._payment_extern()
+
+        else:
+            print 'stage sent'
+            self.state = 'sent'
+            # id = self.create(cr, uid, , context=context)
+            trans_line = self.env['exchange.transaction.line']
+            new = trans_line.create(
+                {'name': 'TEST1',
+                 'transfer_type': 'transfer',
+                 'transfer_from_id': self.account_from_id,
+                 'transfer_to_id': self.account_to_id,
+                 'amount_from': self.amount_from,
+                 'amount_to': self.amount_to,
+                 }
+            )
+            print 'new record in lines'
+
+
+    @api.one  # STAGE 2b invoiced
+    def action_invoice(self):
+        # Workflow action which sends an invoice to Receiver
+        # self.state = 'invoiced'
+        self.is_invoice = True
+        print 'step invoiced'
+        self.state = 'invoiced'
+        return True
+
+
     @api.multi  # OLD
-    def refund(self,  fields, context=None):
+    def action_refund(self,  fields, context=None):
         # Sends a refund transaction to the Creditor
         move_obj = self.pool.get('account.move')
         date = datetime.now().strftime("%Y-%m-%d")
-        for transaction in self.browse( context=context):
+        for transaction in self.browse(context=context):
 
             for move_field in fields:
                 move = getattr(transaction, move_field + '_id')
@@ -281,101 +369,33 @@ class ExchangeTransactions(models.Model):
                         [move.id, reversal_move_id], context=context
                     )
 
-# ****************************************************************************
- #   Model Definition Transactions
-    _name = 'exchange.transaction'
-    _description = 'Exchange Transactions'
-    _inherit = ['mail.thread']
-    _order = 'emission_date'
- #   Track the status of the transaction to mail.thread
+    @api.multi  #  Send Message
+    @api.depends('account_from_id','account_to_id')
+    def do_content(self):
+        # non Workflow action which sends a message to Receiver
 
- #   _track = 'state', 'account_wallet.mt_transaction_state': lambda self,
- #           obj, ctx=None: obj.already_published,
-
-    name = fields.Char(
-        'Number', size=30, required=True)
-        # TBD       default=tr_number_calc('type_id'))
-    account_from_id = fields.Many2one(
-        'exchange.accounts', 'Account From', required=True, track_visibility='onchange')
-    account_to_id = fields.Many2one(
-        'exchange.accounts', 'Account To', required=True, track_visibility='onchange')
-    type_id = fields.Many2one(
-        'exchange.transaction.type', 'Transactions Type', required=True)
-    line_ids = fields.One2many(
-        'exchange.transaction.line', 'transaction_id',  'Transfer Lines', required=False)
-    emission_date = fields.Datetime(
-        'Emission Date', required=True, default=datetime.now().strftime("%Y-%m-%d"))
-    transaction_date = fields.Datetime(
-        'Transaction Date', required=False)
-    emission_from = fields.Many2one(
-        'res.partner', 'Issued from',
-        default=lambda self: self.env['exchange.model'].user_partner)
-    amount_from = fields.Float(
-        'Amount from Sender', required=True)
-    # TBD: should be computed out of exchange rates in res.currency
-    amount_to = fields.Float(
-        'Amount to Receiver', required=True)
+     #   trans_line = self.env['exchange.transaction.line']
+     #       new = trans_line.create(
+     #               {'name': 'Message test',
+     #               'transfer_type': 'info',
+     #               'transfer_from_id': self.account_from_id,
+     #               'transfer_to_id': self.account_to_id,
+     #               }
+     #       )
+     #   print new
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'exchange.transaction.line',
+            'view_type': 'form',
+            'view_mode': 'form',
+           # 'view_id': 'view_transaction_line_info_form',
+            'target': 'new',
+            'transfer_type': 'info',
+        }
 
 
-    state = fields.Selection(
-            [
-                ('draft', 'Draft'),
-                ('sent', '⌛Sent'),
-                ('invoiced', '⌛Invoiced'),
-                ('paid', 'Paid'),
-                ('refunded', 'Refunded'),
-                ('denied', 'Denied'),
-                ('canceled', 'Cancelled'),
-            ], 'Status', readonly=False, default='draft', required=True, track_visibility='onchange')
-
-    is_fee = fields.Boolean(
-        'Transaction has fees')
-    is_invoice = fields.Boolean(
-        'Invoice Transaction')
-
-    is_loan = fields.Boolean('Is a loan transaction')
-    loan_contract_id = fields.Many2one(
-        'exchange.loan.contract', 'Related Loan contract', required=False)
-
-    # Related fields (not stored in DB)
-    sender_id = fields.Many2one('res.partner',
-         'Sending Partner', related='account_from_id.partner_id',
-         readonly=True)
-    receiver_id = fields.Many2one('res.partner',
-         'Receiving Partner', related='account_to_id.partner_id',
-         readonly=True)
-    currency_from = fields.Many2one('res.currency',
-        'Currency from', related='account_from_id.currency_base',
-         readonly=True)
-    currency_to = fields.Many2one('res.currency',
-        'Currency to', related='account_to_id.currency_base',
-         readonly=True)
-    exchange_rate_from = fields.Float(
-        'Exchange rate Sender', required=True, default=1.0)
-# TBD   exchange_rate_from = fields.Float('exchange.accounts',
-#        'Exchange rate from Sender',  related='account_from_id.exchange_rate',
-#         readonly=True)
-    exchange_rate_to = fields.Float(
-        'Exchange rate Receiver', required=True, default=1.0)
-    ext_from = fields.Boolean('From external Account',
-        related='account_from_id.external_db',
-        readonly=True, store=True)
-    ext_to = fields.Boolean('To external Account',
-        related='account_to_id.external_db',
-        readonly=True)
-    type_prefix_from = fields.Many2one('exchange.account.type',
-        'Prefix from', related='type_id.type_prefix_from',
-        readonly=True)
-    type_prefix_to = fields.Many2one('exchange.account.type',
-        'Prefix to', related='type_id.type_prefix_to',
-        readonly=True)
-
-    # TBD Computed fields (not stored in DB)
-    user_role = fields.Char(
-         'User role', store= False,
-         compute='_get_user_role', track_visibility='onchange')
-
-# TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#    TO CHECK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #    is_issuer = fields.Boolean(
 #         'Is Issuer', store= True,

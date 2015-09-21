@@ -61,11 +61,11 @@
                         </div>
                         <div>
                             <field name="currency_id" class="oe_inline"/>
-                            <field name="currency_symbol" class="oe_inline"/>
+
                             <label for="currency_id" class="oe_inline"/>
-                            <!-- TBD error when I open view
+                            <!-- TBD error when I open view -->
                             <field name="exchange_rate" class="oe_inline"/>
-                            <label for="exchange_rate"/> -->
+                            <label for="exchange_rate"/>
                         </div>
                         <div>
                             <field name="account_type" class="oe_inline"/>
@@ -88,6 +88,10 @@
                         <div>
                             <field name="default_account" class="oe_inline"/>
                             <label for="default_account"/>
+                        </div>
+                        <div>
+                            <field name="with_messaging" class="oe_inline"/>
+                            <label for="with_messaging"/>
                         </div>
                         </div>
                     </group>

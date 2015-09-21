@@ -89,6 +89,10 @@ class ResPartner(orm.Model):
             'exchange.accounts', 'partner_id', 'Accounts',
             help="Related accounts to this user"
         ),
+        'exchange_loan_ids': fields.one2many(
+            'exchange.loan.contract', 'partner_id', 'Loans',
+            help="Related loans"
+        ),
 #        'account_balance_ids': fields.one2many(
 #            'res.partner.wallet.balance', 'partner_id', 'Balances',
 #            readonly=True

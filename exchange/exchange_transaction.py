@@ -176,4 +176,11 @@ class ExchangeMove(models.Model):
     amount_to = fields.Float('Amount to', transfer_type={'transfer':[('required=True')]})
     date = fields.Date('Date',  default=datetime.now(), required=True, readonly=True, select=True)
 
+    # Related fields (not stored in DB)
+    account_from = fields.Many2one('exchange.transaction',
+         'Account from', related='transaction_id.account_from_id',
+         readonly=True)
+    account_to = fields.Many2one('exchange.transaction',
+         'Account to', related='transaction_id.account_to_id',
+         readonly=True)
 

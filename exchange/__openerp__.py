@@ -43,7 +43,7 @@
          'exchange_transaction_view.xml',
          'exchange_loan_view.xml',
  #       'test_view.xml',
-         'exchange_workflow.xml',
+         'exchange_transaction_workflow.xml',
  #        'data/exchange_data.xml',
          'data/account_data.xml',
  #        'data/test_data.xml',
