@@ -33,7 +33,7 @@ Add Exchange management in the association part of Odoo
 -------------------------------------------------------
     * Adding state buttons to Partner
     * Adding the wallet page to Partner
-    *
+    * Adding the loan page to Partner
     *
 """,
     'website': 'https://github.com/codoo/vertical-exchange',

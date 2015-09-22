@@ -39,6 +39,25 @@
                         </field>
                     </page>
                 </page>
+                <page string="Internal Notes" position="after">
+                    <page string="Loans" >
+                        <group col="4">
+                        Loans of this user
+                        </group>
+                        <group name="acc_grp">
+
+                        </group>
+                        <field name="exchange_loan_ids" attrs="{'invisible': [('see_balance','!=', True)]}">
+                            <tree string="Accounts">
+                                <field name="name"/>
+                                <field name="partner_id"/>
+                                <field name="loan_type_id"/>
+                                <field name="total_amount"/>
+                                <field name="currency_from"/>
+                            </tree>
+                        </field>
+                    </page>
+                </page>
             </field>
         </record>
     </data>
