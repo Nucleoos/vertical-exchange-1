@@ -38,7 +38,7 @@
         <record id="exchange_transaction_user_read_rule" model="ir.rule">
             <field name="name">exchange transaction user read</field>
             <field name="model_id" ref="model_exchange_transaction"/>
-            <field name="domain_force">['|',('state','not in',['draft','cancel']),('already_published','=',True)]</field>
+            <field name="domain_force">[('state','not in',['draft','canceled'])]</field>
             <field name="groups"  eval="[(6,0,[ref('group_exchange_user')])]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>

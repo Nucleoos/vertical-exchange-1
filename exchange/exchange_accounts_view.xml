@@ -33,9 +33,9 @@
                     <group>
                         <group col="4">
                             <field name="template_id" class="oe_inline"/>
-                            <field name="name" style="bold"/>
+                            <field name="name" fonts="bold"/>
                             <field name="partner_id"/>
-                            <field name="number"/>
+                            <field name="number" fonts="bold"/>
                        </group>
                     </group>
                     <group name="curr_grp">

@@ -101,6 +101,8 @@
             <field name="arch" type="xml">
                 <tree string="Loans type all">
                     <field name="name"/>
+                    <field name="account_from_id"/>
+                    <field name="currency_from"/>
                     <field name="loan_max_amount"/>
                 </tree>
             </field>
@@ -117,10 +119,11 @@
                         <field name="name" modifiers="{'required': true}"/>
                         <field name="loan_max_amount" widget="monetary" options="{'currency_field': 'currency_from'}"/>
                         <field name="loan_revolving" modifiers="{}"/>
+                        <field name="account_from_id"/>
+                        <field name="currency_from"/>
                     </group>
                     <group name="transact_grp">
                          <field name="loan_grant_type_id" modifiers="{}"/>
-                         <field name="currency_from"/>
                     </group>
                     <group name="params_grp">
                         <label for="id" string="Parameters"/>

@@ -27,6 +27,15 @@ import openerp.addons.decimal_precision as dp
 
 class ExchangeAccounts(models.Model):
 
+    @api.onchange('template_id')
+    def _get_creditlimit(self):
+        print self
+        limitout = 9.0
+        # template_id.limit_positive_value
+        limitout = self.env['exchange.config.accounts'].browse(self._context.get('limit_positive_value'))
+        print limitout
+        self.limit_positive_value = limitout
+
 
     _name = 'exchange.accounts'
     _description = 'Exchange Accounts'
@@ -46,10 +55,10 @@ class ExchangeAccounts(models.Model):
          help='If account type is not system')
     limit_negative = fields.Boolean('Limit - ?')
     limit_negative_value = fields.Float(
-        'Value Limit -')
+        'Credit Limit -', default=0.0)
     limit_positive = fields.Boolean('Limit + ?')
     limit_positive_value = fields.Float(
-        'Value Limit +')
+        'Account Limit +')
 
     state = fields.Selection([
         ('open', 'Open'),
@@ -259,7 +268,7 @@ class AccountTemplateConfig(models.Model):
     _sql_constraints = [
         ('name', 'unique(name)',
         'We can only have one line per name'),
-        ('default_account', 'unique(account_type,default_account)',
+        ('default_account', 'unique(membership_type,default_account)',
         'We can only have one default account per type'),
     ]
 

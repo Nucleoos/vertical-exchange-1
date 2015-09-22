@@ -50,11 +50,11 @@
                 </header>
              <!--   <form string="Transactions all"> -->
                     <group col="4">
-                        <field name="type_id"/>
-                        <field name="name"/>
-                        <field name="emission_date"/>
+                        <field name="type_id" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                        <field name="name" fonts="bold:state!=draft"/>
+                        <field name="emission_date" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                         <field name="transaction_date"/>
-                        <field name="emission_from"/>
+                        <field name="emission_from" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                         <field name="user_role"/>
                         <!--   invisible fields  -->
                         <field name="messaging_from" position="attributes">
@@ -65,17 +65,17 @@
                         </field>
                     </group>
                     <group col="4">
-                        <field name="is_fee"/>
-                        <field name="is_loan"/>
-                        <field name="is_invoice"/>
+                        <field name="is_fee" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                        <field name="is_loan" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                        <field name="is_invoice" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                         <field name="loan_contract_id"/>
                     </group>
                     <group name="from_grp">
                         <label for="id" string="Sender"/>
                         <group col="4">
                         <field name="sender_id"/>
-                        <field name="account_from_id"/>
-                        <field name="amount_from" widget="monetary" options="{'currency_field': 'currency_from'}"/>
+                        <field name="account_from_id" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                        <field name="amount_from" widget="monetary" options="{'currency_field': 'currency_from'}" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                         <field name="currency_from"/>
                         <field name="exchange_rate_from"/>
                         <field name="ext_from"/>
@@ -86,8 +86,8 @@
                         <label for="id" string="Receiver"/>
                         <group col="4">
                         <field name="receiver_id"/>
-                        <field name="account_to_id"/>
-                        <field name="amount_to" widget="monetary" options="{'currency_field': 'currency_to'}"/>
+                        <field name="account_to_id" attrs="{'invisible': [('state','not in',('draft'))]}"/>
+                        <field name="amount_to" widget="monetary" options="{'currency_field': 'currency_to'}" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                         <field name="currency_to"/>
                         <field name="exchange_rate_to"/>
                         <field name="ext_to"/>

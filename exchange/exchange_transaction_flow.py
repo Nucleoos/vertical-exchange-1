@@ -45,7 +45,7 @@ class ExchangeTransactions(models.Model):
         return True
 
 
-    @api.onchange('type_id')  # if account_type is set, create new Transaction NR
+    @api.onchange('type_id', 'is_loan', 'is_invoice')  # if account_type is set, create new Transaction NR
     def set_name(self):
         """
         create new Transaction NR
@@ -55,11 +55,17 @@ class ExchangeTransactions(models.Model):
         if self.type_id is not None:
             t1 = str(self.type_prefix_from.name)
             t2 = str(self.type_prefix_to.name)
-            type1 = str(t1 + '>' + t2)
-            d = datetime.now()
-            date2 = d.strftime('%Y-%m-%d %H:%M:%S')
+            loan = ''
+            inv = ''
+            if self.is_loan is True:
+                loan = '-LO'
+            if self.is_invoice:
+                inv = '-INV'
+            type1 = str(t1 + '>' + t2 + loan + inv)
+            d = str(datetime.now())
+            # date2 = d.strftime('%Y-%m-%d %H:%M:%S')
             # print self.type_id, date2, self.id
-            self.name = type1 + '-' + date2
+            self.name = type1 + '-' + d
 
         # Set is_fee to yes or no depending on the One2many field in transaction.type
         # TBD
@@ -227,9 +233,9 @@ class ExchangeTransactions(models.Model):
     is_fee = fields.Boolean(
         'Transaction has fees', state={'draft': [('readonly', False)]})
     is_invoice = fields.Boolean(
-        'Invoice Transaction', state={'draft': [('readonly', False)]})
+        'Invoice Transaction', track_visibility='onchange', state={'draft': [('readonly', False)]})
 
-    is_loan = fields.Boolean('Is a loan transaction')
+    is_loan = fields.Boolean('Is a loan transaction', track_visibility='onchange')
     loan_contract_id = fields.Many2one(
         'exchange.loan.contract', 'Related Loan contract', state={'draft': [('readonly', False)]}, required=False)
 
