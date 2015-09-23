@@ -38,7 +38,7 @@ class ResPartner(orm.Model):
     _columns = {
     'state' : fields.selection([
         ('application', 'Application'),
-        ('open', 'Open'),
+        ('open', 'Active'),
         ('blocked', 'Blocked'),
         ('closed', 'Closed'),
         ], 'Membership Status', readonly=False,

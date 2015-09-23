@@ -23,6 +23,7 @@
     'name': 'Exchange Membership',
     'version': '0.x',
     'category': 'Association',
+    'summary': 'Community Exchange Membership integration',
     'author': 'Lucas Huber, CoĐoo Project',
     'license': 'AGPL-3',
     'description': """

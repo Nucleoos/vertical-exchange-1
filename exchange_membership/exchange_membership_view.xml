@@ -29,11 +29,12 @@
                             <tree string="Accounts">
                                 <field name="template_id" class="oe_inline"/>
                                 <field name="name" style="bold"/>
+                                <field name="state"/>
                                 <field name="limit_negative" invisible="1"/>
                                 <field name="limit_negative_value" attrs="{'invisible': [('limit_negative','=',False)]}"/>
                                 <field name="limit_positive" invisible="1"/>
                                 <field name="limit_positive_value" attrs="{'invisible': [('limit_positive','=',False)]}"/>
-                                <field name="balance" widget="monetary" options="{'currency_field': 'currency_base'}"/>
+                                <field name="balance"/>
                                 <field name="currency_base"/>
                             </tree>
                         </field>
@@ -50,7 +51,7 @@
                         <field name="exchange_loan_ids" attrs="{'invisible': [('see_balance','!=', True)]}">
                             <tree string="Accounts">
                                 <field name="name"/>
-                                <field name="partner_id"/>
+                                <field name="state"/>
                                 <field name="loan_type_id"/>
                                 <field name="total_amount"/>
                                 <field name="currency_from"/>
