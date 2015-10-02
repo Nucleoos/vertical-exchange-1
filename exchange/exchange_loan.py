@@ -64,7 +64,7 @@ class ExchangeLoanContractsTypes(models.Model):
     loan_repayment_days = fields.Integer('Loan repayment days')
     #Related feilds
     currency_from = fields.Many2one('res.currency',
-        'Currency from', related='account_from_id.currency_base',
+        'Credit Currency', related='account_from_id.currency_base',
          readonly=True)
 
 

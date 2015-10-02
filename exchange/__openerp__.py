@@ -25,7 +25,7 @@
     'category': 'Exchange',
     'author': 'Lucas Huber, CoĐoo Project',
     'license': 'AGPL-3',
-    'summary': 'Community Exchange',
+    'summary': 'Community Exchange Base Module',
     'website': 'https://github.com/codoo/vertical-exchange',
     'depends': [
                 'account_accountant',
