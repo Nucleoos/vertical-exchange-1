@@ -10,7 +10,7 @@
             <field name="report_type">liability</field>
         </record>
 
-        <!-- Chart of Accounts in accounting system-->
+        <!-- Chart of Accounts in accounting system
         <record id="chart_com" model="account.account">
             <field name="code">COM</field>
             <field name="name">Community Accounting</field>
@@ -109,7 +109,7 @@
             <field name="parent_id" ref="chart_cs"/>
             <field name="type">payable</field>
             <field name="user_type" ref="exchange_account_type_community"/>
-        </record>
+        </record>-->
 
         <!-- Accounting Journal -->
         <record id="sequence_exchange_journal" model="ir.sequence">
@@ -117,7 +117,7 @@
             <field eval="3" name="padding"/>
             <field name="prefix">COMJ/%(year)s/</field>
         </record>
-
+<!--
         <record id="exchange_journal" model="account.journal">
             <field name="name">Exchange Journal</field>
             <field name="code">COMJ</field>
@@ -131,7 +131,7 @@
             <field name="key">exchange_journal_id</field>
             <field name="value" ref="exchange_journal"/>
         </record>
-
+-->
         <!-- Currencies -->
         <record id="DOO" model="res.currency">
             <field name="name">DOO</field>

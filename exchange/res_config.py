@@ -20,111 +20,100 @@
 ##############################################################################
 
 
-import logging
+import time
+import datetime
+from dateutil.relativedelta import relativedelta
 
-from openerp.osv import fields, orm
-# import openerp.addons.decimal_precision as dp
+import openerp
+from openerp import SUPERUSER_ID
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
+from openerp import api, fields, models, _
+from openerp.exceptions import UserError
 
 
-class ExchangeConfigSettings(orm.Model):
+class ExchangeConfigSettings(models.Model):
 
 
     # Add Exchange configuration (parameters) to Exchange settings
     _inherit = 'exchange.config.settings'
 
-    _columns = {
-        'name': fields.char(
-            'Exchange Name',
-            required=True,
-            size=21,
-            help='Name of the Exchange'
-        ),
-        'code': fields.char(
-            'Exchange Code',
-            required=False,
-            default="GB WXYZ",
-            size=7,
-            help="Unique Exchange Code (EC)"
-                 "First part of the 20 digits Account Code CC BBBB"
-                 "CC country code -> DE Germany"
-                 "BBBB Exchange code"
-        ),
-        'res_company_id': fields.many2one(
-            'res.company', 'Exchange Organisation',
-            help="Organisation or Company that runs the Exchange"
-        ),
-        'display_balance': fields.boolean('Everyone can see balances?'),
-        'journal_id': fields.many2one(
-            'account.journal', 'Community Journal', required=True
-        ),
-        'account_ids': fields.one2many(
-            'exchange.config.accounts', 'config_id', 'Accounts templates'
-#            domain=lambda self: [('name', '=', self._name)],
-#            auto_join=True, string='Lines'
-        ),
+    name = fields.Char(
+        'Exchange Name',
+        required=True,
+        size=21,
+        help='Name of the Exchange')
+    code = fields.Char(
+        'Exchange Code',
+        required=False,
+        default="GB WXYZ",
+        size=7,
+        help="Unique Exchange Code (EC)"
+             "First part of the 20 digits Account Code CC BBBB"
+             "CC country code -> DE Germany"
+             "BBBB Exchange code")
+    res_company_id = fields.Many2one(
+        'res.company', 'Exchange Organisation',
+        help="Organisation or Company that runs the Exchange")
+    display_balance = fields.Boolean('Everyone can see balances?')
+    journal_id = fields.Many2one(
+        'account.journal', 'Community Journal', required=True)
+    account_ids = fields.One2many(
+        'exchange.config.accounts', 'config_id', 'Accounts templates'
+        #            domain=lambda self: [('name', '=', self._name)],
+        #            auto_join=True, string='Lines'
+    )
 
-        # TBD may raise conflicts with exchange rates in accounting system
-        'ref_currency_id': fields.many2one(
-            'res.currency', 'Reference currency',
-            help="Currency which is used to calculate exchange rates for transaction engine /n"
-            "ATTENTION Reference currency for Odoo Accounting my differ!",
-            domain=[('exchange_currency', '=', True)], required=False
-        ),
-        'use_account_numbers': fields.boolean(
-            'Use of Account Numbering System',
-            help="Use of the 20 digits Account Numbering Code 'CC BBBB DDDDDDDD XXXX-KK'"
-        ),
-    }
+    # TBD may raise conflicts with exchange rates in accounting system
+    ref_currency_id = fields.Many2one(
+        'res.currency', 'Reference currency',
+        help="Currency which is used to calculate exchange rates for transaction engine /n"
+             "ATTENTION Reference currency for Odoo Accounting my differ!",
+        domain=[('exchange_currency', '=', True)], required=False)
+    use_account_numbers = fields.Boolean(
+        'Use of Account Numbering System',
+        help="Use of the 20 digits Account Numbering Code 'CC BBBB DDDDDDDD XXXX-KK'")
 
 
-class ResPartner(orm.Model):
+class ResPartner(models.Model):
     """
     Display accounts in partner form and add element for configuration
     specific to the partner
     """
     _inherit = 'res.partner'
 
-    _columns = {
-        'exchange_account_ids': fields.one2many(
-            'exchange.accounts', 'partner_id', 'Accounts',
-            help="Related accounts to this user"
-        ),
-        'exchange_loan_ids': fields.one2many(
-            'exchange.loan.contract', 'partner_id', 'Loans',
-            help="Related loans"
-        ),
-#        'account_balance_ids': fields.one2many(
-#            'res.partner.wallet.balance', 'partner_id', 'Balances',
-#            readonly=True
-#        ),
-        'create_date': fields.datetime('Create date'),
-        'see_balance': fields.boolean(
-            "Can see balance?"
-        ),
-#  TBD      'see_balance': fields.function(
+    exchange_account_ids = fields.One2many(
+        'exchange.accounts', 'partner_id', 'Accounts',
+        help="Related accounts to this user")
+    exchange_loan_ids = fields.One2many(
+        'exchange.loan.contract', 'partner_id', 'Loans',
+        help="Related loans")
+    #         account_balance_ids = fields.One2many(
+    #            'res.partner.wallet.balance', 'partner_id', 'Balances',
+    #            readonly=True)
+    create_date = fields.Datetime('Create date')
+    see_balance = fields.Boolean(
+    "Can see balance?")
+#  TBD      'see_balance = fields.function(
 #            _get_see_balance, type="boolean", string="Can see balance?"
 #        ),
-    }
 
-class DistributedDB(orm.Model):
+
+class DistributedDB(models.Model):
     """
     Adds many2one fields to Distributed DB model.
     """
     _inherit = 'distributed.db.list'
 
-    _columns = {
-    'config_id': fields.many2one(
+    config_id = fields.Many2one(
         'exchange.config.accounts', 'Config ID',
-        help='If ledger are used for an exchange system'),
-    }
+        help='If ledger are used for an exchange system')
 
 
-class ResCurrency(orm.Model):
+class ResCurrency(models.Model):
     """
     Add a boolean in currency to identify currency usable in wallet/exchange
     """
     _inherit = 'res.currency'
 
-    _columns = {
-        'exchange_currency': fields.boolean('Exchange currency?', readonly=False)
-    }
+    exchange_currency = fields.Boolean('Exchange currency?', readonly=False)
+

@@ -36,8 +36,6 @@ Create configuration menu for exchange modules
     'depends': [
         'base',
         'mail',
-        'base_community',
-        'membership_users',
         'association',
     ],
     'data': [

@@ -78,13 +78,14 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
         </record>
-
+        <!-- Rules model_res_currency
         <record id="base.res_currency_rule" model="ir.rule">
             <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups"  eval="[(6,0,[ref('group_exchange_admin')])]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
-        </record>
+        </record> -->
     </data>
 </openerp>

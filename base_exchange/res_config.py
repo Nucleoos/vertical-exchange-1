@@ -20,11 +20,11 @@
 
 import logging
 
-from openerp.osv import orm
+from openerp import models, fields, api
 
 _logger = logging.getLogger(__name__)
 
-class ExchangeConfigSettings(orm.Model):
+class ExchangeConfigSettings(models.TransientModel):
 
     """
     Exchange settings which will be used to contain all configuration

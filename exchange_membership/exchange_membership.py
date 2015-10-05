@@ -22,12 +22,12 @@
 # from lxml import etree
 # from lxml.builder import E
 from openerp import models, fields, api
-from openerp.osv import fields, orm
+
 # from openerp import SUPERUSER_ID
 # from openerp.tools.translate import _
 
 
-class ResPartner(orm.Model):
+class ResPartner(models.Model):
 
     """
     Add some field in partner to use for Exchange
@@ -35,8 +35,16 @@ class ResPartner(orm.Model):
 
     _inherit = 'res.partner'
 
-    _columns = {
-    'state' : fields.selection([
+    presentation = fields.Text('Presentation')
+    show_phone = fields.Boolean('Show phone to others members?')
+    exchange_role = fields.Selection([
+        ('user', 'User'),
+        ('moderator', 'Moderator'),
+        ('admin', 'Admin'),
+        ]
+        readonly=False, track_visibility='onchange',
+        help="Role of User in Exchange")
+    state = fields.Selection([
         ('application', 'Application'),
         ('open', 'Active'),
         ('blocked', 'Blocked'),
@@ -45,7 +53,6 @@ class ResPartner(orm.Model):
         required=True, default='open', track_visibility='onchange',
         help="Status of Account"
              "Blocked, for temporary blocking transactions")
-    }
 
     @api.one
     def do_membership_deblock(self):
@@ -60,3 +67,18 @@ class ResPartner(orm.Model):
     @api.one
     def do_membership_close(self):
         self.state = 'closed'
+
+    @api.onchange('res.users.groups_id')
+    def _get_user_role(self):
+        # Control the access rights of the current user
+
+        if self.pool.get('res.users').has_group(
+                    cr, uid, 'exchange.group_exchange_user'):
+                self.exchange_role = 'user'
+        if self.pool.get('res.users').has_group(
+                    cr, uid, 'exchange.group_exchange_moderator'):
+                self.exchange_role = 'moderator'
+        if self.pool.get('res.users').has_group(
+                    cr, uid, 'exchange.group_exchange_admin'):
+                self.exchange_role = 'admin'
+        return
