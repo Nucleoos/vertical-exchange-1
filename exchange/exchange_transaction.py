@@ -43,7 +43,8 @@ class ExchangeTransactionTypes(models.Model):
             help='Transactions Type is hidden to users')
     allowed_payment = fields.Boolean('Allowed Payment')
     allowed_self_payment = fields.Boolean('Allowed Self Payment')
-    priority = fields.Boolean('Priority')
+    priority = fields.Boolean('Priority',
+            help='This Transactions Type is used as default if there is more then one for a given situation')
     conciliable = fields.Boolean('Conciliable')
 #    requires_authorization = fields.Boolean('requires_authorization ')
 #    allows_scheduled_payments = fields.Boolean('allows_scheduled_payments')

@@ -44,8 +44,8 @@
  #       'test_view.xml',
          'exchange_transaction_workflow.xml',
          'data/exchange_data.xml',
- #        'data/account_data.xml',
- #        'data/test_data.xml',
+         'data/account_data.xml',
+         'data/loan_data.xml',
             ],
     """
     'demo': ['data/exchange_demo.xml'],
