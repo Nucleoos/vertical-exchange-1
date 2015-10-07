@@ -130,7 +130,7 @@
      <!--        <field name="search_view_id" ref="view_exchange_transaction_search"/>
      -->   </record>
         <!-- Association Menu Item -->
-        <menuitem action="act_exchange_transaction_my" id="menu_act_transaction_accounts_my" parent="membership.menu_membership" sequence="18"/>
+        <menuitem action="act_exchange_transaction_my" id="menu_act_transaction_accounts_my" parent="base_exchange.menu_association_exchange_user" sequence="18"/>
 <!-- *********************************************************************************** -->
 
         <!-- Transactions type view tree -->

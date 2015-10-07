@@ -16,8 +16,8 @@
                     </header>
                 </xpath>
                 <!-- Adding new wallet page to Partner -->
-                <page string="Internal Notes" position="after">
-                    <page string="Wallet" >
+                <xpath expr="//page[@name='internal_notes']" position="after">
+                    <page name="wallet" string="Wallet">
                         <group col="4">
                             <field name="see_balance" invisible="0"/>
                             <field name="create_date" readonly="1"/>
@@ -39,9 +39,9 @@
                             </tree>
                         </field>
                     </page>
-                </page>
-                <page string="Internal Notes" position="after">
-                    <page string="Loans" >
+                </xpath>
+                <xpath expr="//page[@name='internal_notes']" position="after">
+                    <page name="loans" string="Loans">
                         <group col="4">
                         Loans of this user
                         </group>
@@ -58,7 +58,7 @@
                             </tree>
                         </field>
                     </page>
-                </page>
+                </xpath>
             </field>
         </record>
     </data>

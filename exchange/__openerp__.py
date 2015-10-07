@@ -36,7 +36,7 @@
     'data': [
         'security/exchange_security.xml',
         'security/ir.model.access.csv',
- #       'exchange_old_view.xml',
+
          'res_config_view.xml',
          'exchange_accounts_view.xml',
          'exchange_transaction_view.xml',

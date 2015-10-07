@@ -41,7 +41,7 @@ class ResPartner(models.Model):
         ('user', 'User'),
         ('moderator', 'Moderator'),
         ('admin', 'Admin'),
-        ]
+        ],
         readonly=False, track_visibility='onchange',
         help="Role of User in Exchange")
     state = fields.Selection([

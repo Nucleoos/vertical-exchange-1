@@ -2,8 +2,12 @@
 <openerp>
     <data>
         <!-- Association/Config Menu Items -->
-        <menuitem id="menu_association_exchange_config" name="Exchange" parent="base.menu_marketing_config_association"/>
-        <menuitem id="menu_association_exchange_admin" name="Exchange Admin" parent="membership.menu_membership"/>
+        <menuitem id="menu_association_exchange_user" name="My Exchange" parent="base.menu_association" sequence="40"/>
+        <menuitem id="menu_association_exchange_admin" name="Exchange Admin" parent="base.menu_association" sequence="60"/>
+        <menuitem id="menu_association_exchange_config" name="Exchange" parent="base.menu_marketing_config_association" sequence="60"/>
+        <menuitem id="menu_association_config_products" name="Membership Products"
+            parent="base.menu_marketing_config_association" sequence="100" groups="base.group_configuration" action="membership.action_membership_products"/>
+
         <!-- Config Menu Items -->
         <menuitem id="menu_configuration_exchange" name="Exchange" parent="base.menu_config"/>
 
