@@ -16,7 +16,7 @@
                     </header>
                 </xpath>
                 <!-- Adding new wallet page to Partner -->
-                <xpath expr="//page[@name='internal_notes']" position="after">
+                <xpath expr="//page[@name='internal_notes']" position="before">
                     <page name="wallet" string="Wallet">
                         <group col="4">
                             <field name="see_balance" invisible="0"/>
@@ -40,7 +40,7 @@
                         </field>
                     </page>
                 </xpath>
-                <xpath expr="//page[@name='internal_notes']" position="after">
+                <xpath expr="//page[@name='internal_notes']" position="before">
                     <page name="loans" string="Loans">
                         <group col="4">
                         Loans of this user
@@ -59,6 +59,64 @@
                         </field>
                     </page>
                 </xpath>
+            </field>
+        </record>
+        <!-- Membership My Profile-->
+        <record id="membership.action_membership_members" model="ir.actions.act_window">
+            <field name="domain">[('user_ids','!=',False)]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="action_membership_my_profile" model="ir.actions.server">
+            <field name="name">My Profile</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = {
+                    'type': 'ir.actions.act_window',
+                    'name': 'My account',
+                    'view_mode': 'form',
+                    'view_type': 'form',
+                    'res_model': 'res.users',
+                    'nodestroy': 'true',
+                    'res_id': uid,
+                    'views': [(False, 'form')],
+                }
+            </field>
+       </record>
+
+       <menuitem action="action_membership_my_profile" id="menu_action_membership_my_profile" parent="base_exchange.menu_association_exchange_user"/>
+
+        <!-- Members/Partner view -->
+        <record id="view_partner_form_membership_users" model="ir.ui.view">
+            <field name="name">partner.form.membership.users</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="function" position="after">
+                    <field name="show_phone" attrs="{'invisible': [('exchange_group','!=','user'),('exchange_group','!=','moderator')]}"/>
+                    <field name="exchange_group" invisible="0"/>
+                </field>
+               <field name="phone" position="attributes">
+                    <attribute name="attrs">{'invisible': [('exchange_group','!=','user'),('exchange_group','!=','moderator'),('show_phone', '!=', True)]}</attribute>
+                </field>
+        <!--         <field name="mobile" position="attributes">
+                    <attribute name="attrs">{'invisible': [('exchange_group','!=',user),('exchange_group','!=',moderator),('show_phone', '!=', True)]}</attribute>
+                </field>
+                <field name="email" position="attributes">
+                    <attribute name="attrs">{'invisible': [('exchange_group','!=',user),('exchange_group','!=',moderator)], 'required': [('user_ids','!=', [])]}</attribute>
+                </field>
+                <page name="internal_notes" position="after">
+                    <page name="presentation" string="Presentation">
+                        <field name="presentation"/>
+                    </page>
+                </page>
+                <page name="internal_notes"  position="attributes">
+                    <attribute name="groups">membership_users.group_membership_moderator</attribute>
+                </page>
+                <page name="sales_purchases" position="attributes">
+                    <attribute name="groups">account.group_account_user</attribute>
+                </page> -->
             </field>
         </record>
     </data>

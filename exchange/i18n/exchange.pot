@@ -331,12 +331,12 @@ msgid "Marketplace"
 msgstr ""
 
 #. module: exchange
-#: model:res.groups,name:exchange.group_exchange_moderator
+#: model:res.groups,name:exchange.base_exchange.group_exchange_moderator
 msgid "Marketplace / Moderator"
 msgstr ""
 
 #. module: exchange
-#: model:res.groups,name:exchange.group_exchange_user
+#: model:res.groups,name:exchange.base_exchange.group_exchange_user
 msgid "Marketplace / User"
 msgstr ""
 

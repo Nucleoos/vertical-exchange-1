@@ -14,7 +14,7 @@
 -
   !record {model: res.users, id: user_test1}:
     groups_id:
-      - exchange.group_exchange_user
+      - base_exchange.group_exchange_user
 -
   !record {model: res.partner, id: partner_test2}:
     name: "Test2"
@@ -29,4 +29,4 @@
 -
   !record {model: res.users, id: user_test2}:
     groups_id:
-      - exchange.group_exchange_user
+      - base_exchange.group_exchange_user

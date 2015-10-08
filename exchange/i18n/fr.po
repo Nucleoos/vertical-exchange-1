@@ -337,12 +337,12 @@ msgid "Marketplace"
 msgstr "Place de marché"
 
 #. module: exchange
-#: model:res.groups,name:exchange.group_exchange_moderator
+#: model:res.groups,name:exchange.base_exchange.group_exchange_moderator
 msgid "Marketplace / Moderator"
 msgstr "Place de marché / Modérateur"
 
 #. module: exchange
-#: model:res.groups,name:exchange.group_exchange_user
+#: model:res.groups,name:exchange.base_exchange.group_exchange_user
 msgid "Marketplace / User"
 msgstr "Place de marché / Utilisateur"
 

@@ -104,7 +104,7 @@ class MarketplaceAnnouncement(orm.Model):
             if transaction.partner_id.id == partner_id:
                 res[transaction.id]['is_user'] = True
             if self.pool.get('res.users').has_group(
-                    cr, uid, 'exchange.group_exchange_moderator'
+                    cr, uid, 'base_exchange.group_exchange_moderator'
             ):
                 res[transaction.id]['is_user'] = True
                 res[transaction.id]['is_moderator'] = True

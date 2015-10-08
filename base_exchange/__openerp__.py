@@ -39,6 +39,7 @@ Create configuration menu for exchange modules
         'association',
     ],
     'data': [
+        'security/base_exchange_security.xml',
         'res_config_view.xml',
         'security/ir.model.access.csv'
     ],

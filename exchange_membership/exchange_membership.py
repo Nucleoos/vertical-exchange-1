@@ -37,7 +37,7 @@ class ResPartner(models.Model):
 
     presentation = fields.Text('Presentation')
     show_phone = fields.Boolean('Show phone to others members?')
-    exchange_role = fields.Selection([
+    exchange_group = fields.Selection([
         ('user', 'User'),
         ('moderator', 'Moderator'),
         ('admin', 'Admin'),
@@ -73,12 +73,12 @@ class ResPartner(models.Model):
         # Control the access rights of the current user
 
         if self.pool.get('res.users').has_group(
-                    cr, uid, 'exchange.group_exchange_user'):
+                    cr, uid, 'base_exchange.group_exchange_user'):
                 self.exchange_role = 'user'
         if self.pool.get('res.users').has_group(
-                    cr, uid, 'exchange.group_exchange_moderator'):
+                    cr, uid, 'base_exchange.group_exchange_moderator'):
                 self.exchange_role = 'moderator'
         if self.pool.get('res.users').has_group(
-                    cr, uid, 'exchange.group_exchange_admin'):
+                    cr, uid, 'base_exchange.group_exchange_admin'):
                 self.exchange_role = 'admin'
         return
