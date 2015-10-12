@@ -54,6 +54,6 @@
      -->       <!--  Account in Odoo accounting system
             <field name="account_id" ref="exchange.exchange_organisation_loans1"/>
         </record>
--->-->
+    -->
     </data>
 </openerp>
