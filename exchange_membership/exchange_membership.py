@@ -35,7 +35,7 @@ class ResPartner(models.Model):
 
     _inherit = 'res.partner'
 
-    presentation = fields.Text('Presentation')
+    presentation = fields.Text('About me/us')
     show_phone = fields.Boolean('Show phone to others members?')
     exchange_group = fields.Selection([
         ('user', 'User'),
@@ -53,6 +53,36 @@ class ResPartner(models.Model):
         required=True, default='open', track_visibility='onchange',
         help="Status of Account"
              "Blocked, for temporary blocking transactions")
+    exchange_user_code = fields.Char(
+        'Exchange Code', compute='_compute_code',
+        readonly=False, store=True)
+
+    @api.one
+    def _member_state(self, ids):
+        res = {}
+        for id in ids:
+            record = self.browse()
+            res.update({id:record.membership_state})
+        return res
+
+    member_state = fields.Char(
+        compute='_member_state',
+        store=False)
+    membership_type = fields.Many2one('product.product',
+        'Membership Type', related='member_lines.membership_id',
+         readonly=True, store=True,
+         help="Membership Type from Products")
+
+
+    @api.depends('exchange_group')
+    def _compute_code(self):
+       # TBD code = str(exchange.config.accounts.code)
+        code = 'CH-EXC1'
+        partid = '0011'
+
+        type1 = str(code + '-' + partid)
+        print partid, type1
+        return type1
 
     @api.one
     def do_membership_deblock(self):
@@ -73,12 +103,12 @@ class ResPartner(models.Model):
         # Control the access rights of the current user
 
         if self.pool.get('res.users').has_group(
-                    cr, uid, 'base_exchange.group_exchange_user'):
-                self.exchange_role = 'user'
+                'base_exchange.group_exchange_user'):
+                self.exchange_group = 'user'
         if self.pool.get('res.users').has_group(
-                    cr, uid, 'base_exchange.group_exchange_moderator'):
-                self.exchange_role = 'moderator'
+                'base_exchange.group_exchange_moderator'):
+                self.exchange_group = 'moderator'
         if self.pool.get('res.users').has_group(
-                    cr, uid, 'base_exchange.group_exchange_admin'):
-                self.exchange_role = 'admin'
+                'base_exchange.group_exchange_admin'):
+                self.exchange_group = 'admin'
         return

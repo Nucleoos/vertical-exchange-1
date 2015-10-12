@@ -23,7 +23,7 @@ from openerp.exceptions import except_orm
 import openerp.addons.decimal_precision as dp
 
 #    List of Accounts for members and the system
-#    help='If ledger are used for an exchange system')
+#
 
 class ExchangeAccounts(models.Model):
 
@@ -46,13 +46,15 @@ class ExchangeAccounts(models.Model):
     number = fields.Char(
         'Account Number', required=True,
         size=16, help='Number of the Account', default='CH-XX-123456')
+    key = fields.Text(
+        'Key', readonly=True,
+         help="Account key for the use in outside DB/ledger")
     desc = fields.Text('Description')
     template_id = fields.Many2one(
         'exchange.config.accounts', 'Account Template',
         track_visibility='onchange', required=True)
     partner_id = fields.Many2one(
-        'res.partner', 'Partner', ondelete='cascade',
-         help='If account type is not system')
+        'res.partner', 'Partner')
     limit_negative = fields.Boolean('Limit - ?')
     limit_negative_value = fields.Float(
         'Credit Limit -', default=0.0)
@@ -87,10 +89,9 @@ class ExchangeAccounts(models.Model):
     exchange_rate = fields.Float(
         'Exchange Rate', related='template_id.exchange_rate',
          readonly=True)
-        # TBD Error to many vaules     readonly=True, store=True)
-#    user_id = fields.Char('res.users',
-#         'User ID', related='partner_id.id',
-#        readonly=True)
+    user_id = fields.One2many('res.users',
+        'User ID', related='partner_id.user_ids',
+        readonly=True)
     with_messaging = fields.Boolean(
         string='Messaging', related='template_id.with_messaging',
         readonly=True)
@@ -177,7 +178,7 @@ class AccountTypesType(models.Model):
 
 class AccountTemplateConfig(models.Model):
 
-    # Lines containing the general configuration for accounts types
+    # Lines containing the general configuration of account templates
 
     _name = 'exchange.config.accounts'
     _description = 'Exchange Account Type/Template configuration'
@@ -290,7 +291,7 @@ class AccountTemplateConfig(models.Model):
 #                             _("Only one user accounts per type"))
 
     '''
-    def update_all_partners(self, cr, uid, context=None):
+    def update_all_partners(self):
         # Update balances on all partners
         partner_obj = self.pool.get('res.partner')
         partner_ids = partner_obj.search(cr, uid, [], context=context)
@@ -298,7 +299,7 @@ class AccountTemplateConfig(models.Model):
             cr, uid, partner_ids, context=context
         )
 
-    def create(self, cr, uid, vals, context=None):
+    def create(self):
         # Mark the currency as wallet and then
         # update balance on all partners at creation
         self.pool.get('res.currency').write(
@@ -311,7 +312,7 @@ class AccountTemplateConfig(models.Model):
         self.update_all_partners(cr, uid, context=context)
         return res
 
-    def write(self, cr, uid, ids, vals, context=None):
+    def write(self):
         # Update balance on all partners when modified
         res = super(AccountTypesConfig, self).write(
             cr, uid, ids, vals, context=context
@@ -319,7 +320,7 @@ class AccountTemplateConfig(models.Model):
         self.update_all_partners(cr, uid, context=context)
         return res
 
-    def unlink(self, cr, uid, ids, context=None):
+    def unlink(self):
         # Remove the wallet flag on the currency
         # and then update balance on all partners
         for currency in self.browse(cr, uid, ids, context=context):

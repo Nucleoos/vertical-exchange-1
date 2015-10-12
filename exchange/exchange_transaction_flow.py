@@ -49,7 +49,6 @@ class ExchangeTransactions(models.Model):
     def set_name(self):
         """
         create new Transaction NR
-        TBD on new record it generates an error?????
         :param type_id: The type of transaction that determines the prefixes
         """
         if self.type_id is not None:
