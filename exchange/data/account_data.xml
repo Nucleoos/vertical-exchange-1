@@ -73,7 +73,7 @@
         </record>
 
         <!-- Transaction Type Def User -->
-        <record id="transaction_type_template1" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template1" model="exchange.transaction.type">
             <field name="name">Default PrivUser -> PrivUser</field>
             <field name="from_account_type_id" ref="exchange.account_template1"/>
             <field name="to_account_type_id" ref="exchange.account_template1"/>
@@ -86,7 +86,7 @@
         </record>
 
         <!-- Transaction Type Trusted User -->
-        <record id="transaction_type_template2" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template2" model="exchange.transaction.type">
             <field name="name">Trusted PrivUser -> PrivUser</field>
             <field name="from_account_type_id" ref="exchange.account_template2"/>
             <field name="to_account_type_id" ref="exchange.account_template2"/>
@@ -98,7 +98,7 @@
         </record>
 
         <!-- Transaction Fee Type Business User -->
-        <record id="transaction_type_template3a" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template3a" model="exchange.transaction.type">
             <field name="name">BusinessUser -> Organisation Acc.</field>
             <field name="from_account_type_id" ref="exchange.account_template3"/>
             <field name="to_account_type_id" ref="exchange.account_template5"/>
@@ -106,26 +106,26 @@
             <field name="is_fee">True</field>
             <field name="fee_type">percent</field>
             <field name="fee">1.0</field>
-            <field name="feetype_id" ref="transaction_type_template3"/>
+            <field name="feetype_id" ref="exchange.transaction_type_template3"/>
             <field name="desc">Fee for BusinessUser to BusinessUser</field>
             <field name="confirmation_message">Your account has been charged with a fee!</field>
         </record>
 
         <!-- Transaction Type Business User -->
-        <record id="transaction_type_template3" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template3" model="exchange.transaction.type">
             <field name="name">BusinessUser -> BusinessUser</field>
             <field name="from_account_type_id" ref="exchange.account_template3"/>
             <field name="to_account_type_id" ref="exchange.account_template3"/>
             <field name="allowed_payment">True</field>
             <field name="allowed_self_payment">True</field>
             <field name="priority">True</field>
-            <field name="feetype_ids" ref="transaction_type_template3a"/>
+            <field name="feetype_ids" ref="exchange.transaction_type_template3a"/>
             <field name="desc">From BusinessUser to BusinessUser</field>
             <field name="confirmation_message">You have received a transaction from another Business User!</field>
         </record>
 
         <!-- Transaction Type Default -> Trusted User -->
-        <record id="transaction_type_template4" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template4" model="exchange.transaction.type">
             <field name="name">Default PrivUser -> Trusted PrivUser</field>
             <field name="from_account_type_id" ref="exchange.account_template1"/>
             <field name="to_account_type_id" ref="exchange.account_template2"/>
@@ -136,7 +136,7 @@
             <field name="confirmation_message">You have received a transaction from a Default Private User!</field>
         </record>
         <!-- Transaction Type Trusted  -> Default User -->
-        <record id="transaction_type_template5" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template5" model="exchange.transaction.type">
             <field name="name">Trusted PrivUser -> Default PrivUser</field>
             <field name="from_account_type_id" ref="exchange.account_template2"/>
             <field name="to_account_type_id" ref="exchange.account_template2"/>
@@ -148,7 +148,7 @@
             <field name="confirmation_message">You have received a transaction from a Trusted Private User!</field>
         </record>
         <!-- Transaction Type Default -> Business User -->
-        <record id="transaction_type_template6" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template6" model="exchange.transaction.type">
             <field name="name">Default PrivUser -> Business User</field>
             <field name="from_account_type_id" ref="exchange.account_template1"/>
             <field name="to_account_type_id" ref="exchange.account_template3"/>
@@ -160,7 +160,7 @@
         </record>
 
         <!-- Transaction Type Default -> Organisation -->
-        <record id="transaction_type_template7" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template7" model="exchange.transaction.type">
             <field name="name">Default PrivUser -> Organisation Acc.</field>
             <field name="from_account_type_id" ref="exchange.account_template1"/>
             <field name="to_account_type_id" ref="exchange.account_template5"/>
@@ -171,7 +171,7 @@
             <field name="confirmation_message">You have received a transaction from a Default Private User!</field>
         </record>
         <!-- Transaction Type Trusted -> Organisation -->
-        <record id="transaction_type_template8" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template8" model="exchange.transaction.type">
             <field name="name">Trusted PrivUser -> Organisation Acc.</field>
             <field name="from_account_type_id" ref="exchange.account_template2"/>
             <field name="to_account_type_id" ref="exchange.account_template5"/>
@@ -182,7 +182,7 @@
             <field name="confirmation_message">You have received a transaction from a Trusted Private User!</field>
         </record>
         <!-- Transaction Type Organisation -> Trusted User -->
-        <record id="transaction_type_template9" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template9" model="exchange.transaction.type">
             <field name="name">Organisation Acc. -> Trusted PrivUser</field>
             <field name="from_account_type_id" ref="exchange.account_template5"/>
             <field name="to_account_type_id" ref="exchange.account_template2"/>

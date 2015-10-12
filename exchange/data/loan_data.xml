@@ -28,7 +28,7 @@
 
 
         <!-- Transaction Type System Loan -> Business User -->
-        <record id="transaction_type_template11" model="exchange.transaction.type">
+        <record id="exchange.transaction_type_template11" model="exchange.transaction.type">
             <field name="name">System Loan -> Business User</field>
             <field name="from_account_type_id" ref="exchange.account_template7"/>
             <field name="to_account_type_id" ref="exchange.account_template3"/>
