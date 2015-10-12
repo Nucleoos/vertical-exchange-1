@@ -106,7 +106,7 @@
             <field name="is_fee">True</field>
             <field name="fee_type">percent</field>
             <field name="fee">1.0</field>
-            <field name="feetype_id" ref="exchange.transaction_type_template3"/>
+        <!-- <field name="feetype_id" ref="exchange.transaction_type_template3"/> -->
             <field name="desc">Fee for BusinessUser to BusinessUser</field>
             <field name="confirmation_message">Your account has been charged with a fee!</field>
         </record>
@@ -119,7 +119,7 @@
             <field name="allowed_payment">True</field>
             <field name="allowed_self_payment">True</field>
             <field name="priority">True</field>
-            <field name="feetype_ids" ref="exchange.transaction_type_template3a"/>
+        <!-- <field name="feetype_ids" ref="exchange.transaction_type_template3a"/> -->
             <field name="desc">From BusinessUser to BusinessUser</field>
             <field name="confirmation_message">You have received a transaction from another Business User!</field>
         </record>
