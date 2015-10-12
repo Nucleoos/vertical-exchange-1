@@ -20,7 +20,7 @@
         </record>
         <!-- Loan System Account -->
         <record id="account_system_loan" model="exchange.accounts">
-            <field name="template_id" ref="exchange.account_template7"/>
+            <field name="template_id" ref="exchange.loan_template1"/>
             <field name="name">System Loan Account</field>
             <field name="currency_id" ref="DOO"/>
             <field name="number">SY-LOAN</field>
@@ -30,7 +30,7 @@
         <!-- Transaction Type System Loan -> Business User -->
         <record id="exchange.transaction_type_template11" model="exchange.transaction.type">
             <field name="name">System Loan -> Business User</field>
-            <field name="from_account_type_id" ref="exchange.account_template7"/>
+            <field name="from_account_type_id" ref="exchange.loan_template1"/>
             <field name="to_account_type_id" ref="exchange.account_template3"/>
             <field name="is_loan">True</field>
             <field name="allowed_payment">True</field>
