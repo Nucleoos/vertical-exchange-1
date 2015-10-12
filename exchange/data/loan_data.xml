@@ -4,7 +4,7 @@
 
     <!-- Loan Templates -->
         <!-- Loan System Account Template -->
-        <record id="account_template7" model="exchange.config.accounts">
+        <record id="exchange.loan_template1" model="exchange.config.accounts">
             <field name="config_id" ref="base_exchange.exchange_settings"/>
             <field name="name">Loan System Account</field>
             <field name="currency_id" ref="DOO"/>

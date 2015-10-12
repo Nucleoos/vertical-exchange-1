@@ -4,7 +4,7 @@
 
     <!-- Account Templates -->
         <!-- Default User Account  -->
-        <record id="account_template1" model="exchange.config.accounts">
+        <record id="exchange.account_template1" model="exchange.config.accounts">
             <field name="config_id" ref="base_exchange.exchange_settings"/>
             <field name="name">Default User Accounts</field>
             <field name="membership_type" ref="membership.membership_2"/>
@@ -23,7 +23,7 @@
         </record>
 
         <!-- Trusted User Account -->
-        <record id="account_template2" model="exchange.config.accounts">
+        <record id="exchange.account_template2" model="exchange.config.accounts">
             <field name="config_id" ref="base_exchange.exchange_settings"/>
             <field name="name">Trusted User Accounts</field>
             <field name="membership_type" ref="membership.membership_1"/>
@@ -41,7 +41,7 @@
         </record>
 
         <!-- Default Business User Account -->
-        <record id="account_template3" model="exchange.config.accounts">
+        <record id="exchange.account_template3" model="exchange.config.accounts">
             <field name="config_id" ref="base_exchange.exchange_settings"/>
             <field name="name">Business User Accounts</field>
             <field name="membership_type" ref="membership.membership_0"/>
@@ -57,7 +57,7 @@
             <field name="account_id" ref="exchange_partner_bus_user_account1"/>
         </record>
         <!-- System Account -->
-        <record id="account_template5" model="exchange.config.accounts">
+        <record id="exchange.account_template5" model="exchange.config.accounts">
             <field name="config_id" ref="base_exchange.exchange_settings"/>
             <field name="name">System Account</field>
             <field name="currency_id" ref="DOO"/>
