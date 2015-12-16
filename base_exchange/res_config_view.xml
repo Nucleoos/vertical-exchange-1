@@ -10,9 +10,6 @@
         <menuitem id="menu_association_config_products" name="Membership Products"
             parent="base.menu_marketing_config_association" sequence="100" groups="base.group_configuration" action="membership.action_membership_products"/>
 
-        <!-- Config Menu Items -->
-        <menuitem id="menu_configuration_exchange" name="Exchange" parent="base.menu_config"/>
-
 
         <!-- Adding Menu Config -->
         <record id="exchange_settings" model='exchange.config.settings'/>
@@ -35,11 +32,9 @@
             <field name="res_id" ref="exchange_settings"/>
         </record>
 
-        <menuitem id="menu_exchange_admin_configuration" parent="menu_configuration_exchange"
+        <menuitem id="menu_exchange_admin_configuration" parent="menu_association_exchange_config"
             sequence="16" action="action_exchange_configuration"/>
 
-        <menuitem id="menu_exchange_association_configuration" parent="menu_association_exchange_config"
-            sequence="16" action="action_exchange_configuration"/>
 
     </data>
 </openerp>

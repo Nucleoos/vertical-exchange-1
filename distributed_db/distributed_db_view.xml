@@ -64,7 +64,7 @@
             <field name="context">{}</field>
         <!--     <field name="search_view_id" ref="view_exchange_transaction_search"/>
        --> </record>
-         <!-- Settings Menu Item -->
-        <menuitem action="act_distributed_db_all" id="menu_act_transaction_all" parent="base_exchange.menu_configuration_exchange" sequence="22"/>
+         <!-- Configuration Menu Item -->
+        <menuitem action="act_distributed_db_all" id="menu_act_transaction_all" parent="base_exchange.menu_association_exchange_config" sequence="22"/>
     </data>
 </openerp>

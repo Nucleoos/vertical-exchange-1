@@ -101,8 +101,6 @@
         </record>
         <!-- Association Menu Item -->
         <menuitem action="act_exchange_accounts_all" id="menu_act_exchange_accounts_asoc_all" parent="base_exchange.menu_association_exchange_admin" sequence="6"/>
-        <!-- Settings Menu Item -->
-        <menuitem action="act_exchange_accounts_all" id="menu_act_exchange_accounts_all" parent="base_exchange.menu_configuration_exchange" sequence="6"/>
 <!-- *********************************************************************************** -->
 
         <!-- Association Menu Item My Wallet -->

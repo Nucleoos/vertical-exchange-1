@@ -112,8 +112,7 @@
        --> </record>
         <!-- Association Menu Item -->
         <menuitem action="act_exchange_transaction_all" id="menu_act_transaction_asoc_all" parent="base_exchange.menu_association_exchange_admin" sequence="2"/>
-        <!-- Settings Menu Item -->
-        <menuitem action="act_exchange_transaction_all" id="menu_act_transaction_all" parent="base_exchange.menu_configuration_exchange" sequence="2"/>
+
 <!-- *********************************************************************************** -->
 
         <!-- Menu Items my Transactions -->
@@ -216,10 +215,8 @@
             <field name="context">{}</field>
         <!--     <field name="search_view_id" ref="view_exchange_transaction_search"/>
        --> </record>
-        <!-- Association Menu Item -->
-        <menuitem action="act_exchange_transaction_type_all" id="menu_act_transaction_type_asoc_all" parent="base_exchange.menu_association_exchange_config" sequence="2"/>
         <!-- Settings Menu Item -->
-        <menuitem action="act_exchange_transaction_type_all" id="menu_act_transaction_type_all" parent="base_exchange.menu_configuration_exchange" sequence="2"/>
+        <menuitem action="act_exchange_transaction_type_all" id="menu_act_transaction_type_all" parent="base_exchange.menu_association_exchange_config" sequence="2"/>
 <!-- *********************************************************************************** -->
 
         <!-- Transactions line view tree -->

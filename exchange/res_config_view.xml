@@ -199,8 +199,6 @@
         </record>
         <!-- Association Menu Item  view_account_config_tree -->
         <menuitem action="act_account_config_all" id="menu_act_account_config_assoc_all" parent="base_exchange.menu_association_exchange_config" sequence="4"/>
-        <!-- Settings Menu Item -->
-        <menuitem action="act_account_config_all" id="menu_act_account_config_all" parent="base_exchange.menu_configuration_exchange" sequence="4"/>
 
         <!-- Adding Exchange Currency Boolean to Currencies -->
         <record id="form_exchange_currency_view_inherited" model="ir.ui.view">

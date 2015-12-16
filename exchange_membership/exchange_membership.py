@@ -63,6 +63,7 @@ class ResPartner(models.Model):
         for id in ids:
             record = self.browse()
             res.update({id:record.membership_state})
+      #  res = self.membership_state
         return res
 
     member_state = fields.Char(
